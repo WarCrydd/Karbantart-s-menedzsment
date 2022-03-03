@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,7 +28,8 @@ public class Client {
         // establish a connection
         try {
             socket = new Socket(address, port);
-            System.out.println("Connected");
+//            System.out.println("Connected");
+            new SignIn().setVisible(true);
 
             // takes input from terminal
             input = new DataInputStream(System.in);
@@ -35,10 +37,10 @@ public class Client {
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
         } catch (UnknownHostException u) {
-            System.out.println(u);
+            JOptionPane.showMessageDialog(null, "Nem sikerült kapcsolódni a szerverhez... Próbáld újra később", "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         } catch (IOException i) {
-            System.out.println(i);
+            JOptionPane.showMessageDialog(null, "Nem sikerült kapcsolódni a szerverhez... Próbáld újra később", "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
 
