@@ -1,9 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package client;
+package com.mycompany.client;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -14,10 +13,9 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author Ákos
+ * @author balazs
  */
 public class Client {
-
     // initialize socket and input output streams
     private Socket socket = null;
     private DataInputStream input = null;
@@ -27,7 +25,7 @@ public class Client {
     public Client(String address, int port) {
         // establish a connection
         try {
-            socket = new Socket(address, port);
+//            socket = new Socket(address, port);
 //            System.out.println("Connected");
             new SignIn().setVisible(true);
 
@@ -77,5 +75,4 @@ public class Client {
     public static void main(String args[]) {
         Client client = new Client("127.0.0.1", 5000);
     }
-
 }
