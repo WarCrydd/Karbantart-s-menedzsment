@@ -24,5 +24,9 @@ hs_err_pid*
 
 /build
 /out
+<<<<<<< HEAD
 /Kliens/Client/dist/
 /Kliens/Client/target/
+=======
+>>>>>>> parent of d824d9e (Kezdetleges bejelentkező ablak)
+/Kliens/Client/nbproject/
