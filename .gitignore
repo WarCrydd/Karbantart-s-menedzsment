@@ -26,7 +26,10 @@ hs_err_pid*
 /out
 <<<<<<< HEAD
 /Kliens/Client/dist/
+<<<<<<< HEAD
 /Kliens/Client/target/
 =======
 >>>>>>> parent of d824d9e (Kezdetleges bejelentkező ablak)
 /Kliens/Client/nbproject/
+=======
+>>>>>>> parent of da4b6cb (+jdbc driver, maven projekté alakítás)

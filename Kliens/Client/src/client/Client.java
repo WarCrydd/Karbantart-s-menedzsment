@@ -1,20 +1,23 @@
 /*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
-package com.mycompany.client;
+package client;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import javax.swing.JOptionPane;
 
 /**
  *
- * @author balazs
+ * @author Ákos
  */
 public class Client {
+
     // initialize socket and input output streams
     private Socket socket = null;
     private DataInputStream input = null;
@@ -24,14 +27,9 @@ public class Client {
     public Client(String address, int port) {
         // establish a connection
         try {
-<<<<<<< HEAD:Kliens/Client/src/main/java/com/mycompany/client/Client.java
-//            socket = new Socket(address, port);
+            socket = new Socket(address, port);
 //            System.out.println("Connected");
             new SignIn().setVisible(true);
-=======
-            socket = new Socket(address, port);
-            System.out.println("Connected");
->>>>>>> parent of d824d9e (Kezdetleges bejelentkező ablak):Kliens/Client/src/client/Client.java
 
             // takes input from terminal
             input = new DataInputStream(System.in);
@@ -39,10 +37,10 @@ public class Client {
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
         } catch (UnknownHostException u) {
-            System.out.println(u);
+            JOptionPane.showMessageDialog(null, "Nem sikerült kapcsolódni a szerverhez... Próbáld újra később", "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         } catch (IOException i) {
-            System.out.println(i);
+            JOptionPane.showMessageDialog(null, "Nem sikerült kapcsolódni a szerverhez... Próbáld újra később", "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
             System.exit(0);
         }
 
@@ -77,6 +75,10 @@ public class Client {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        Client client = new Client("127.0.0.1", 5000);
+        final String IP = "127.0.0.1";
+        final int PORT = 5000;
+        
+        Client client = new Client(IP, PORT);
     }
+
 }
