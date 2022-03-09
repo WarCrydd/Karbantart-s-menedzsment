@@ -41,7 +41,9 @@ public class SignIn extends javax.swing.JFrame {
 
         jLabel2.setText("Jelszó");
 
-        jPasswordField1.setText("jPasswordField1");
+        jTextField1.setToolTipText("Add meg a felhasználóneved.");
+
+        jPasswordField1.setToolTipText("Add meg a jelszavad.");
 
         SignInText.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         SignInText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -75,7 +77,7 @@ public class SignIn extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(45, 45, 45)
                         .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
                         .addComponent(jButton2)))
                 .addContainerGap(136, Short.MAX_VALUE))
         );
