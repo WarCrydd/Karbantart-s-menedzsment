@@ -102,6 +102,7 @@ public class SignIn extends javax.swing.JFrame {
         SignInText.getAccessibleContext().setAccessibleName("");
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -134,6 +135,11 @@ public class SignIn extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+        
+        final String IP = "127.0.0.1";
+        final int PORT = 5000;
+        
+        Client client = new Client(IP, PORT);
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

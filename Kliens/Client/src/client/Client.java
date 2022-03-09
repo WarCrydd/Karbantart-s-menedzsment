@@ -28,8 +28,7 @@ public class Client {
         // establish a connection
         try {
             socket = new Socket(address, port);
-//            System.out.println("Connected");
-            new SignIn().setVisible(true);
+            System.out.println("Connected");
 
             // takes input from terminal
             input = new DataInputStream(System.in);
@@ -37,11 +36,9 @@ public class Client {
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
         } catch (UnknownHostException u) {
-            JOptionPane.showMessageDialog(null, "Nem sikerült kapcsolódni a szerverhez... Próbáld újra később", "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
+            error(u.getLocalizedMessage());
         } catch (IOException i) {
-            JOptionPane.showMessageDialog(null, "Nem sikerült kapcsolódni a szerverhez... Próbáld újra később", "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
+            error(i.getLocalizedMessage());
         }
 
         // string to read message from input
@@ -60,6 +57,11 @@ public class Client {
         close();
     }
     
+    private void error(String msg){
+        JOptionPane.showMessageDialog(null, msg, "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
+        System.exit(0);
+    }
+    
     private void close(){
         // close the connection
         try {
@@ -70,15 +72,4 @@ public class Client {
             System.out.println(i);
         }
     }
-    
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        final String IP = "127.0.0.1";
-        final int PORT = 5000;
-        
-        Client client = new Client(IP, PORT);
-    }
-
 }
