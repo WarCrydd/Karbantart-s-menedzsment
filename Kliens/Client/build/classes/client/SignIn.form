@@ -27,23 +27,21 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="102" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                  <Component id="SignInText" pref="262" max="32767" attributes="0"/>
+                  <Component id="SignInTitle" pref="264" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
-                          <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
-                          <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
+                          <Component id="PASSWORD_LABEL" min="-2" max="-2" attributes="0"/>
+                          <Component id="USERNAME_LABEL" alignment="1" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="SignIn" pref="184" max="32767" attributes="0"/>
-                          <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                              <Component id="jTextField1" max="32767" attributes="0"/>
-                              <Component id="jPasswordField1" pref="184" max="32767" attributes="0"/>
-                          </Group>
+                          <Component id="USERNAME" max="32767" attributes="0"/>
+                          <Component id="PASSWORD" pref="184" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
-              <EmptySpace pref="136" max="32767" attributes="0"/>
+              <EmptySpace pref="134" max="32767" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -51,16 +49,16 @@
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="29" max="-2" attributes="0"/>
-              <Component id="SignInText" min="-2" pref="39" max="-2" attributes="0"/>
+              <Component id="SignInTitle" min="-2" pref="39" max="-2" attributes="0"/>
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jTextField1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="USERNAME_LABEL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="USERNAME" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="jLabel2" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jPasswordField1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="PASSWORD_LABEL" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="PASSWORD" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Component id="SignIn" min="-2" max="-2" attributes="0"/>
@@ -70,27 +68,27 @@
     </DimensionLayout>
   </Layout>
   <SubComponents>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="USERNAME_LABEL">
       <Properties>
         <Property name="text" type="java.lang.String" value="Felhaszn&#xe1;l&#xf3;n&#xe9;v"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
+    <Component class="javax.swing.JLabel" name="PASSWORD_LABEL">
       <Properties>
         <Property name="text" type="java.lang.String" value="Jelsz&#xf3;"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="jTextField1">
+    <Component class="javax.swing.JTextField" name="USERNAME">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Add meg a felhaszn&#xe1;l&#xf3;neved."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JPasswordField" name="jPasswordField1">
+    <Component class="javax.swing.JPasswordField" name="PASSWORD">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Add meg a jelszavad."/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="SignInText">
+    <Component class="javax.swing.JLabel" name="SignInTitle">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Tahoma" size="24" style="0"/>

@@ -5,6 +5,8 @@
  */
 package client;
 
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author Ákos
@@ -27,27 +29,27 @@ public class SignIn extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jPasswordField1 = new javax.swing.JPasswordField();
-        SignInText = new javax.swing.JLabel();
+        USERNAME_LABEL = new javax.swing.JLabel();
+        PASSWORD_LABEL = new javax.swing.JLabel();
+        USERNAME = new javax.swing.JTextField();
+        PASSWORD = new javax.swing.JPasswordField();
+        SignInTitle = new javax.swing.JLabel();
         SignIn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Kérjük jelentkezzen be");
 
-        jLabel1.setText("Felhasználónév");
+        USERNAME_LABEL.setText("Felhasználónév");
 
-        jLabel2.setText("Jelszó");
+        PASSWORD_LABEL.setText("Jelszó");
 
-        jTextField1.setToolTipText("Add meg a felhasználóneved.");
+        USERNAME.setToolTipText("Add meg a felhasználóneved.");
 
-        jPasswordField1.setToolTipText("Add meg a jelszavad.");
+        PASSWORD.setToolTipText("Add meg a jelszavad.");
 
-        SignInText.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        SignInText.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        SignInText.setText("Bejelentkezés");
+        SignInTitle.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        SignInTitle.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        SignInTitle.setText("Bejelentkezés");
 
         SignIn.setText("Belépés");
         SignIn.addActionListener(new java.awt.event.ActionListener() {
@@ -63,46 +65,53 @@ public class SignIn extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(102, 102, 102)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(SignInText, javax.swing.GroupLayout.DEFAULT_SIZE, 262, Short.MAX_VALUE)
+                    .addComponent(SignInTitle, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1))
+                            .addComponent(PASSWORD_LABEL)
+                            .addComponent(USERNAME_LABEL))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(SignIn, javax.swing.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(jTextField1)
-                                .addComponent(jPasswordField1, javax.swing.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE)))))
-                .addContainerGap(136, Short.MAX_VALUE))
+                            .addComponent(USERNAME)
+                            .addComponent(PASSWORD, javax.swing.GroupLayout.DEFAULT_SIZE, 184, Short.MAX_VALUE))))
+                .addContainerGap(134, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(29, 29, 29)
-                .addComponent(SignInText, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(SignInTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(USERNAME_LABEL)
+                    .addComponent(USERNAME, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jPasswordField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(PASSWORD_LABEL)
+                    .addComponent(PASSWORD, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(SignIn)
                 .addContainerGap(58, Short.MAX_VALUE))
         );
 
-        SignInText.getAccessibleContext().setAccessibleName("");
+        SignInTitle.getAccessibleContext().setAccessibleName("");
 
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void SignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignInActionPerformed
-        new ResponsibleForAssets().setVisible(true);
-        dispose();
+        final String username = USERNAME.getText();
+        final char [] password = PASSWORD.getPassword();
+        
+        if (false){
+            new ResponsibleForAssets().setVisible(true);
+            dispose();
+        }else{
+            JOptionPane.showMessageDialog(null, "Hibás felhasználónév, vagy hibás jelszó!\nEllenőrizd az adatokat és próbáld újra.", "Sikertelen bejelentkezés", JOptionPane.WARNING_MESSAGE);
+            PASSWORD.setText("");
+        }
     }//GEN-LAST:event_SignInActionPerformed
 
     /**
@@ -132,7 +141,7 @@ public class SignIn extends javax.swing.JFrame {
         }
         //</editor-fold>
         
-        final String IP = "fe80::20b4:4cbb:9c65:820b%31";
+        final String IP = "fe80::b0b1:6ae7:7112:550c%17";
         final int PORT = 11000;
         
         Client client = new Client(IP, PORT);
@@ -146,11 +155,11 @@ public class SignIn extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JPasswordField PASSWORD;
+    private javax.swing.JLabel PASSWORD_LABEL;
     private javax.swing.JButton SignIn;
-    private javax.swing.JLabel SignInText;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JPasswordField jPasswordField1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JLabel SignInTitle;
+    private javax.swing.JTextField USERNAME;
+    private javax.swing.JLabel USERNAME_LABEL;
     // End of variables declaration//GEN-END:variables
 }

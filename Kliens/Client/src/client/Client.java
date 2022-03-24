@@ -22,16 +22,19 @@ public class Client {
     private Socket socket = null;
     private DataInputStream input = null;
     private DataOutputStream out = null;
+    
+    //Cookie
+    private String cookie;
 
     // constructor to put ip address and port
     public Client(String address, int port) {
         // establish a connection
         try {
             socket = new Socket(address, port);
-            System.out.println("Connected");
+            System.out.println("Connected to: "+socket.getInetAddress().getHostAddress());
 
             // takes input from terminal
-            input = new DataInputStream(System.in);
+            input = new DataInputStream(socket.getInputStream());
 
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
@@ -40,7 +43,10 @@ public class Client {
         } catch (IOException i) {
             error(i.getLocalizedMessage());
         }
-
+        
+        //Here we should save cookie to cookie variable.
+        
+        /*
         // string to read message from input
         String line = "";
 
@@ -54,7 +60,7 @@ public class Client {
             }
         }
 
-        close();
+        close();*/
     }
     
     private void error(String msg){
