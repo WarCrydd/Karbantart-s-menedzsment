@@ -10,7 +10,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -22,16 +27,16 @@ public class Client {
     private Socket socket = null;
     private DataInputStream input = null;
     private DataOutputStream out = null;
-    
+
     //Cookie
-    private String cookie;
+    private String hash;
 
     // constructor to put ip address and port
     public Client(String address, int port) {
         // establish a connection
         try {
             socket = new Socket(address, port);
-            System.out.println("Connected to: "+socket.getInetAddress().getHostAddress());
+            System.out.println("Connected to: " + socket.getInetAddress().getHostAddress());
 
             // takes input from terminal
             input = new DataInputStream(socket.getInputStream());
@@ -43,9 +48,8 @@ public class Client {
         } catch (IOException i) {
             error(i.getLocalizedMessage());
         }
-        
+
         //Here we should save cookie to cookie variable.
-        
         /*
         // string to read message from input
         String line = "";
@@ -62,13 +66,59 @@ public class Client {
 
         close();*/
     }
-    
-    private void error(String msg){
+
+    public boolean SignIn(String username, char[] password) {
+        String JSONtext, JSONreply = "";
+        JSONObject obj = new JSONObject();
+        obj.put("hash", hash);
+        obj.put("code", 1);
+        obj.put("username", username);
+        obj.put("password", encrypt(password));
+        JSONtext = obj.toJSONString();
+        /*try {
+            out.writeUTF(JSONtext);
+            JSONreply = input.readUTF();
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        JSONArray array = (JSONArray)JSONValue.parse(JSONreply);*/
+        return true;
+    }
+
+    private String encrypt(char[] password) {
+        String ret = "";
+
+        /* MessageDigest instance for MD5. */
+        MessageDigest m = null;
+        try {
+            m = MessageDigest.getInstance("MD5");
+        } catch (NoSuchAlgorithmException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        /* Add plain-text password bytes to digest using MD5 update() method. */
+        m.update(String.copyValueOf(password).getBytes());
+
+        /* Convert the hash value into bytes */
+        byte[] bytes = m.digest();
+
+        /* The bytes array has bytes in decimal form. Converting it into hexadecimal format. */
+        StringBuilder s = new StringBuilder();
+        for (int i = 0; i < bytes.length; i++) {
+            s.append(Integer.toString((bytes[i] & 0xff) + 0x100, 16).substring(1));
+        }
+
+        /* Complete hashed password in hexadecimal format */
+        ret = s.toString();
+        return ret;
+    }
+
+    private void error(String msg) {
         JOptionPane.showMessageDialog(null, msg, "Szerver nem elérhető", JOptionPane.ERROR_MESSAGE);
         System.exit(0);
     }
-    
-    private void close(){
+
+    private void close() {
         // close the connection
         try {
             input.close();

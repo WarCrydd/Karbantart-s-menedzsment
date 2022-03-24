@@ -35,9 +35,19 @@ public class AsynchronousSocketListener
         // The DNS name of the computer  
         // running the listener is "host.contoso.com".  
         IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-        IPAddress ipAddress = ipHostInfo.AddressList[0];
+        IPAddress ipAddress = ipHostInfo.AddressList[7];
         IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11000);
-        Console.WriteLine(ipAddress.ToString());
+        Console.WriteLine(ipAddress.ToString()+"\n");
+
+        for (int i = 0; i < ipHostInfo.AddressList.Length; i++)
+        {
+            Console.WriteLine(ipHostInfo.AddressList[i].ToString());
+            Console.WriteLine(ipHostInfo.AddressList[i].AddressFamily);
+            Console.WriteLine(ipHostInfo.AddressList[i].IsIPv4MappedToIPv6);
+            Console.WriteLine(ipHostInfo.AddressList[i].IsIPv6LinkLocal);
+            Console.WriteLine(ipHostInfo.AddressList[i].MapToIPv4()+"\n\n");
+
+        }
 
         // Create a TCP/IP socket.  
         Socket listener = new Socket(ipAddress.AddressFamily,

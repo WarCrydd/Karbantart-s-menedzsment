@@ -19,6 +19,8 @@ public class SignIn extends javax.swing.JFrame {
     public SignIn() {
         initComponents();
     }
+    
+    private static Client client;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -105,7 +107,7 @@ public class SignIn extends javax.swing.JFrame {
         final String username = USERNAME.getText();
         final char [] password = PASSWORD.getPassword();
         
-        if (false){
+        if (client.SignIn(username, password)){
             new ResponsibleForAssets().setVisible(true);
             dispose();
         }else{
@@ -139,12 +141,12 @@ public class SignIn extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>
+        //</editor-fold>      
         
-        final String IP = "fe80::b0b1:6ae7:7112:550c%17";
+        final String IP = "192.168.10.4";
         final int PORT = 11000;
         
-        Client client = new Client(IP, PORT);
+        client = new Client(IP, PORT);
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
