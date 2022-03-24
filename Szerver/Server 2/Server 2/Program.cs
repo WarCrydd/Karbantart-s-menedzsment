@@ -62,6 +62,7 @@ public class AsynchronousSocketListener
 
                 // Wait until a connection is made before continuing.  
                 allDone.WaitOne();
+                Console.WriteLine("Someone connected.");
             }
 
         }
