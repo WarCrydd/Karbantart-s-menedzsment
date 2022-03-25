@@ -5,6 +5,8 @@
  */
 package client;
 
+import org.json.simple.JSONObject;
+
 /**
  *
  * @author Ákos
