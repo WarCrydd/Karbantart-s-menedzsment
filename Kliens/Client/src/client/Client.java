@@ -28,7 +28,7 @@ public class Client {
     private DataInputStream input = null;
     private DataOutputStream out = null;
 
-    //Cookie
+    //Hash
     private String hash;
 
     // constructor to put ip address and port
@@ -43,13 +43,19 @@ public class Client {
 
             // sends output to the socket
             out = new DataOutputStream(socket.getOutputStream());
+
+            //Here we should save the hash to hash variable.
+//            String JSONhash = input.readUTF();
+            
+            
         } catch (UnknownHostException u) {
             error(u.getLocalizedMessage());
         } catch (IOException i) {
             error(i.getLocalizedMessage());
         }
 
-        //Here we should save cookie to cookie variable.
+        
+        
         /*
         // string to read message from input
         String line = "";
@@ -86,7 +92,6 @@ public class Client {
     }
 
     private String encrypt(char[] password) {
-        String ret = "";
 
         /* MessageDigest instance for MD5. */
         MessageDigest m = null;
@@ -109,8 +114,8 @@ public class Client {
         }
 
         /* Complete hashed password in hexadecimal format */
-        ret = s.toString();
-        return ret;
+        
+        return s.toString();
     }
 
     private void error(String msg) {
@@ -118,7 +123,7 @@ public class Client {
         System.exit(0);
     }
 
-    private void close() {
+    public void close() {
         // close the connection
         try {
             input.close();

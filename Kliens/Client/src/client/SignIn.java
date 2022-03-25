@@ -5,6 +5,8 @@
  */
 package client;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
 
 /**
@@ -18,6 +20,13 @@ public class SignIn extends javax.swing.JFrame {
      */
     public SignIn() {
         initComponents();
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                client.close();
+                super.windowClosing(e); //To change body of generated methods, choose Tools | Templates.
+            }
+        });
     }
     
     private static Client client;
