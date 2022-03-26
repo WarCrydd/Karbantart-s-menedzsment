@@ -5,6 +5,9 @@
  */
 package client;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
 /**
  *
  * @author Ákos
@@ -14,16 +17,20 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     /**
      * Creates new form ResponsibleForAssets
      */
-    public ResponsibleForAssets() {
+    public ResponsibleForAssets(Client c) {
         initComponents();
+        client = c;
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                client.close();
+                super.windowClosing(e); //To change body of generated methods, choose Tools | Templates.
+            }
+        });
+        NAME_FIELD.setText(client.getName());
     }
     
-    boolean LOGOUT = false;
-    
-    public boolean showWindow(){
-        setVisible(true);
-        return LOGOUT;
-    }
+    Client client;
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -35,7 +42,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        NAME_FIELD = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jComboBox1 = new javax.swing.JComboBox<>();
@@ -63,8 +70,8 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setText("Eszközfelelős kezelőfelület - Bejelentkezve:");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        jLabel2.setText("Bedő Sanyi");
+        NAME_FIELD.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        NAME_FIELD.setText("Bedő Sanyi");
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -171,7 +178,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2)
+                        .addComponent(NAME_FIELD)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jButton3)))
                 .addContainerGap())
@@ -182,7 +189,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jLabel2)
+                    .addComponent(NAME_FIELD)
                     .addComponent(jButton3))
                 .addGap(22, 22, 22)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -226,7 +233,8 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        new SignIn().setVisible(true);
+        client.LogOut();
+        new SignIn(client).setVisible(true);       
         dispose();
     }//GEN-LAST:event_jButton3ActionPerformed
 
@@ -258,14 +266,15 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        /*java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ResponsibleForAssets().setVisible(true);
             }
-        });
+        });*/
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel NAME_FIELD;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -273,7 +282,6 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JComboBox<String> jComboBox3;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

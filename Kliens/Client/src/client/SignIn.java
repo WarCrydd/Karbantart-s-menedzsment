@@ -29,6 +29,18 @@ public class SignIn extends javax.swing.JFrame {
         });
     }
     
+    public SignIn(Client c) {
+        initComponents();
+        client = c;
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                client.close();
+                super.windowClosing(e); //To change body of generated methods, choose Tools | Templates.
+            }
+        });
+    }
+    
     private static Client client;
 
     /**
@@ -117,7 +129,7 @@ public class SignIn extends javax.swing.JFrame {
         final char [] password = PASSWORD.getPassword();
         
         if (client.SignIn(username, password)){
-            new ResponsibleForAssets().setVisible(true);
+            new ResponsibleForAssets(client).setVisible(true);
             dispose();
         }else{
             JOptionPane.showMessageDialog(null, "Hibás felhasználónév, vagy hibás jelszó!\nEllenőrizd az adatokat és próbáld újra.", "Sikertelen bejelentkezés", JOptionPane.WARNING_MESSAGE);

@@ -15,7 +15,9 @@ import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  *
@@ -29,7 +31,11 @@ public class Client {
     private DataOutputStream out = null;
 
     //Hash
-    private String hash;
+    private String hash, name;
+
+    public String getName() {
+        return name;
+    }
 
     // constructor to put ip address and port
     public Client(String address, int port) {
@@ -42,11 +48,7 @@ public class Client {
             input = new DataInputStream(socket.getInputStream());
 
             // sends output to the socket
-            out = new DataOutputStream(socket.getOutputStream());
-
-            //Here we should save the hash to hash variable.
-//            String JSONhash = input.readUTF();
-            
+            out = new DataOutputStream(socket.getOutputStream());            
             
         } catch (UnknownHostException u) {
             error(u.getLocalizedMessage());
@@ -76,19 +78,29 @@ public class Client {
     public boolean SignIn(String username, char[] password) {
         String JSONtext, JSONreply = "";
         JSONObject obj = new JSONObject();
-        obj.put("hash", hash);
+//        obj.put("hash", hash);
         obj.put("code", 1);
         obj.put("username", username);
         obj.put("password", encrypt(password));
         JSONtext = obj.toJSONString();
-        /*try {
+        try {
             out.writeUTF(JSONtext);
             JSONreply = input.readUTF();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-        JSONArray array = (JSONArray)JSONValue.parse(JSONreply);*/
-        return true;
+        JSONArray array = (JSONArray)JSONValue.parse(JSONreply);
+        obj = (JSONObject)array.get(0);
+        boolean state = (Boolean)obj.get("state");
+        if (state){
+            hash = (String)obj.get("hash");
+            name = (String)obj.get("name");
+        }
+        return state;
+    }
+    
+    public void LogOut(){
+        hash = null;
     }
 
     private String encrypt(char[] password) {
