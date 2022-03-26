@@ -282,7 +282,7 @@ public class Karbantarto extends javax.swing.JFrame {
     }//GEN-LAST:event_nincsKeszActionPerformed
 
     private void lepesekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lepesekActionPerformed
-        JOptionPane.showMessageDialog(rootPane, "ide jönnek az utasítások\nna meg ide");
+        JOptionPane.showMessageDialog(rootPane, "ide jönnek az utasítások\nna meg ide", "Lépések", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_lepesekActionPerformed
 
     /**
