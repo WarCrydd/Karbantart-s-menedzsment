@@ -29,6 +29,8 @@ public class Karbantarto extends javax.swing.JFrame {
         elutasit.setEnabled(false);
         kesz.setEnabled(false);
         nincsKesz.setEnabled(false);
+        
+        
     }
 
     public void tablazatGeneralo(List karbanTartasok){
