@@ -1,0 +1,18 @@
+{
+  "ActiveTargetSystem": "WSL: Ubuntu",
+  "MRUPresetsPerTargetSystem": {
+    "Local Machine": {
+      "configure": "x64-debug"
+    },
+    "WSL: Ubuntu": {
+      "configure": "linux-debug"
+    }
+  },
+  "ExpandedNodes": [
+    "",
+    "\\Server",
+    "\\Server\\src"
+  ],
+  "SelectedNode": "\\Server\\src\\main.cpp",
+  "PreviewInSolutionExplorer": false
+}
