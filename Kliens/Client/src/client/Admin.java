@@ -14,8 +14,9 @@ public class Admin extends javax.swing.JFrame {
 
     private static Client client;
     
-    public Admin() {
+    public Admin(Client c) {
         initComponents();
+        client = c;
     }
 
     /**
@@ -184,7 +185,7 @@ public class Admin extends javax.swing.JFrame {
         
         String JSONtext, JSONreply = "";
         JSONObject obj = new JSONObject();
-        obj.put("hash", client.getHash());
+//        obj.put("hash", client.getHash());
         obj.put("code", 3);
         obj.put("username", 2);
         obj.put("pw", 2);
@@ -222,11 +223,11 @@ public class Admin extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        /*java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new Admin().setVisible(true);
             }
-        });
+        });*/
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

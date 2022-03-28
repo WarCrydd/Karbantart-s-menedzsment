@@ -13,11 +13,10 @@ import org.json.simple.JSONObject;
  */
 public class Operator extends javax.swing.JFrame {
 
+    Client client;
     
-    String hash;
-    
-    public Operator(String hash) {
-        this.hash=hash;
+    public Operator(Client c) {
+        this.client=c;
         initComponents();
     }
 
@@ -145,7 +144,7 @@ public class Operator extends javax.swing.JFrame {
     private void SignOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignOutActionPerformed
         String JSONtext, JSONreply = "";
         JSONObject obj = new JSONObject();
-        obj.put("hash", hash);
+//        obj.put("hash", client.get);
         obj.put("code", 2);
         JSONtext = obj.toJSONString();
         

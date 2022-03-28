@@ -31,7 +31,11 @@ public class Client {
     private DataOutputStream out = null;
 
     //Hash
-    private String hash, name;
+    private String hash, name, role;
+
+    public String getRole() {
+        return role;
+    }
 
     public String getName() {
         return name;
@@ -101,6 +105,7 @@ public class Client {
     
     public void LogOut(){
         hash = null;
+        name = null;
     }
 
     private String encrypt(char[] password) {

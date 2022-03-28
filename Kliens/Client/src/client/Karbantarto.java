@@ -17,13 +17,13 @@ import org.json.simple.JSONObject;
  */
 public class Karbantarto extends javax.swing.JFrame {
 
-    private String hash;
+    private Client client;
     private List karbanTartasok = new ArrayList();
     
-    public Karbantarto(String hash) {
+    public Karbantarto(Client c) {
         initComponents();
         this.setLocationRelativeTo(null);
-        this.hash = hash;
+        this.client = c;
         tablazatGeneralo(karbanTartasok);
         elfogad.setEnabled(false);
         elutasit.setEnabled(false);
@@ -227,11 +227,12 @@ public class Karbantarto extends javax.swing.JFrame {
                         .addContainerGap(202, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(lepesek, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(helyszin, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(helyszin, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(lepesek, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addGap(47, 47, 47))))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
@@ -246,7 +247,7 @@ public class Karbantarto extends javax.swing.JFrame {
     private void kijelentkezesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_kijelentkezesActionPerformed
         String JSONtext, JSONreply = "";
         JSONObject obj = new JSONObject();
-        obj.put("hash", hash);
+//        obj.put("hash", hash);
         obj.put("code", 2);
         JSONtext = obj.toJSONString();
         System.out.println(JSONtext);
