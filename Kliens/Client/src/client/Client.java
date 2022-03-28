@@ -5,9 +5,14 @@
  */
 package client;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
@@ -27,8 +32,8 @@ public class Client {
 
     // initialize socket and input output streams
     private Socket socket = null;
-    private DataInputStream input = null;
-    private DataOutputStream out = null;
+    private BufferedReader input = null;
+    private BufferedWriter out = null;
 
     //Hash
     private String hash, name, role;
@@ -48,11 +53,10 @@ public class Client {
             socket = new Socket(address, port);
             System.out.println("Connected to: " + socket.getInetAddress().getHostAddress());
 
-            // takes input from terminal
-            input = new DataInputStream(socket.getInputStream());
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // sends output to the socket
-            out = new DataOutputStream(socket.getOutputStream());            
+            out = new BufferedWriter(new PrintWriter(socket.getOutputStream()));            
             
         } catch (UnknownHostException u) {
             error(u.getLocalizedMessage());
@@ -88,8 +92,8 @@ public class Client {
         obj.put("password", encrypt(password));
         JSONtext = obj.toJSONString();
         try {
-            out.writeUTF(JSONtext);
-            JSONreply = input.readUTF();
+            out.write(JSONtext, 0, JSONtext.length());
+            JSONreply = input.readLine();
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }

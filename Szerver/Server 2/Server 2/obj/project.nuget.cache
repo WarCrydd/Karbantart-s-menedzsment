@@ -1,16 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "OyqsEbK43dgQtoAW9F5FVfV5Oh/9Qc0fbElkTzGTQE/1rDSB1wOe14VskiomQQ4ZIWAl8kWtwA8jMvYOa14odQ==",
+  "dgSpecHash": "Ubah5GYU7kSQd+WFCFMHvs0BqlAFUGsTQkZKE8qgHcNt7FBZpUkVSQFTyxXpmd/oADzVyXU5qhD+rNdPgDx6MA==",
   "success": true,
-  "projectFilePath": "C:\\Projektek\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
+  "projectFilePath": "D:\\Documents\\GitHub\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\varga\\.nuget\\packages\\microsoft.data.sqlite\\6.0.3\\microsoft.data.sqlite.6.0.3.nupkg.sha512",
-    "C:\\Users\\varga\\.nuget\\packages\\microsoft.data.sqlite.core\\6.0.3\\microsoft.data.sqlite.core.6.0.3.nupkg.sha512",
-    "C:\\Users\\varga\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.0.6\\sqlitepclraw.bundle_e_sqlite3.2.0.6.nupkg.sha512",
-    "C:\\Users\\varga\\.nuget\\packages\\sqlitepclraw.core\\2.0.6\\sqlitepclraw.core.2.0.6.nupkg.sha512",
-    "C:\\Users\\varga\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.0.6\\sqlitepclraw.lib.e_sqlite3.2.0.6.nupkg.sha512",
-    "C:\\Users\\varga\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.0.6\\sqlitepclraw.provider.e_sqlite3.2.0.6.nupkg.sha512",
-    "C:\\Users\\varga\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
+    "C:\\Users\\Ákos\\.nuget\\packages\\microsoft.data.sqlite\\6.0.3\\microsoft.data.sqlite.6.0.3.nupkg.sha512",
+    "C:\\Users\\Ákos\\.nuget\\packages\\microsoft.data.sqlite.core\\6.0.3\\microsoft.data.sqlite.core.6.0.3.nupkg.sha512",
+    "C:\\Users\\Ákos\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.0.6\\sqlitepclraw.bundle_e_sqlite3.2.0.6.nupkg.sha512",
+    "C:\\Users\\Ákos\\.nuget\\packages\\sqlitepclraw.core\\2.0.6\\sqlitepclraw.core.2.0.6.nupkg.sha512",
+    "C:\\Users\\Ákos\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.0.6\\sqlitepclraw.lib.e_sqlite3.2.0.6.nupkg.sha512",
+    "C:\\Users\\Ákos\\.nuget\\packages\\sqlitepclraw.provider.e_sqlite3\\2.0.6\\sqlitepclraw.provider.e_sqlite3.2.0.6.nupkg.sha512",
+    "C:\\Users\\Ákos\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
   ],
   "logs": []
 }

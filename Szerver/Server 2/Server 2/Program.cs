@@ -99,7 +99,7 @@ public class AsynchronousSocketListener
                 state.write("Read " + content.Length +" bytes from client: " + content);
             }
 
-            Send(state, content.Substring(0, 2) + state.solve(content));
+            Send(state, content.Substring(0, 2) + state.solve(content)+"\r\n");
         }
         catch (Exception ex)
         {

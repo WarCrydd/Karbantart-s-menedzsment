@@ -129,7 +129,7 @@ public class SignIn extends javax.swing.JFrame {
         final char [] password = PASSWORD.getPassword();
         
         if (client.SignIn(username, password)){
-            switch (client.getRole()){
+            /*switch (client.getRole()){
                 case "ADMIN":
                     new Admin(client).setVisible(true);
                     break;
@@ -142,8 +142,8 @@ public class SignIn extends javax.swing.JFrame {
                 case "OPERATOR":
                     new Operator(client).setVisible(true);
                     break;
-            }
-            
+            }*/
+            new Admin(client).setVisible(true);
             dispose();
         }else{
             JOptionPane.showMessageDialog(null, "Hibás felhasználónév, vagy hibás jelszó!\nEllenőrizd az adatokat és próbáld újra.", "Sikertelen bejelentkezés", JOptionPane.WARNING_MESSAGE);
@@ -178,8 +178,8 @@ public class SignIn extends javax.swing.JFrame {
         }
         //</editor-fold>      
         
-        final String IP = "";
-        final int PORT = 11000;
+        final String IP = "192.168.10.4";
+        final int PORT = 8888;
         
         client = new Client(IP, PORT);
 
