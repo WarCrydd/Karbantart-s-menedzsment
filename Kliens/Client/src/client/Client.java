@@ -13,6 +13,8 @@ import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -91,26 +93,43 @@ public class Client {
         System.out.println(JSONtext);
         try {
             out.writeUTF(JSONtext);
-            //System.out.println(JSONtext.getBytes().length);
-            //System.out.println(input.readAllBytes().length);
+            
             byte[] bytokxd=input.readAllBytes();
             JSONreply = new String(bytokxd, StandardCharsets.UTF_8);
             System.out.println(JSONreply);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        String str = "{ \"name\": \"Alice\", \"age\": 20 }";
+//
+//        Map<String, String> map=new HashMap<String, String>();
+//        String kulcs="", ertek="";
+//        int elsoindex=0;
+//        for(int i=0; i<JSONreply.length();i++){
+//            if(JSONreply.charAt(i) == '"' && elsoindex == 0){
+//                elsoindex=i;
+//            } else if(JSONreply.charAt(i) == '"' && elsoindex != 0){
+//                if(kulcs.equals("")){
+//                    kulcs=JSONreply.substring(elsoindex+1, i);
+//                } else {
+//                    ertek=JSONreply.substring(elsoindex+1, i);
+//                    map.put(kulcs, ertek);
+//                    kulcs="";
+//                }
+//            }
+//        }
+//                
         
-        JSONArray array = (JSONArray)JSONValue.parse(str);
+        JSONObject array = (JSONObject)JSONValue.parse(JSONreply);
         obj = (JSONObject)array.get(0);
 
-        boolean state = (Boolean)obj.get("state");
-        if (state){
-            hash = (String)obj.get("hash");
-            name = (String)obj.get("name");
+        Long state = (Long)array.get("state");
+        if (state==0){
+            hash = (String)array.get("hash");
+            name = (String)array.get("name");
+            role = (String)array.get("role");
+            return true;
         }
-        return state;
+        return false;
     }
     
     public void LogOut(){
