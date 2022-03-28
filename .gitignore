@@ -18,6 +18,8 @@
 *.zip
 *.tar.gz
 *.rar
+*.db
+Szerver/Szerver 2/Szerver 2/bin/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
@@ -28,8 +30,11 @@ hs_err_pid*
 /out
 <<<<<<< HEAD
 /Kliens/Client/dist/
+*bin/
+*/bin/
 <<<<<<< HEAD
 /Kliens/Client/target/
+*.db
 =======
 >>>>>>> parent of d824d9e (Kezdetleges bejelentkező ablak)
 /Kliens/Client/nbproject/
