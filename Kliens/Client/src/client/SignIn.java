@@ -132,8 +132,8 @@ public class SignIn extends javax.swing.JFrame {
         }
         //</editor-fold>
         
-        final String IP = "25.54.161.46";
-        final int PORT = 8888;
+        final String IP = "fe80::20b4:4cbb:9c65:820b%31";
+        final int PORT = 11000;
         
         Client client = new Client(IP, PORT);
 
