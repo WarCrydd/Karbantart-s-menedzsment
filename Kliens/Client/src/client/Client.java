@@ -36,6 +36,10 @@ public class Client {
     //Hash
     private String hash, name, role;
 
+    public String getHash() {
+        return hash;
+    }
+
     public String getRole() {
         return role;
     }
@@ -81,6 +85,21 @@ public class Client {
 
         close();*/
     }
+    public JSONObject sendAndRecieveJSON(String json){
+        String reply="";
+        try {
+            out.writeUTF(json); 
+            byte[] bytokxd=input.readAllBytes();
+            reply = new String(bytokxd, StandardCharsets.UTF_8);
+        } catch (IOException ex) {
+            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        JSONObject array = (JSONObject)JSONValue.parse(reply);
+        Long state = (Long)array.get("state");
+        if (state==0){
+            return array;
+        } else return null;
+    }
 
     public boolean SignIn(String username, char[] password) {
         String JSONtext, JSONreply ="";
@@ -100,27 +119,8 @@ public class Client {
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-//
-//        Map<String, String> map=new HashMap<String, String>();
-//        String kulcs="", ertek="";
-//        int elsoindex=0;
-//        for(int i=0; i<JSONreply.length();i++){
-//            if(JSONreply.charAt(i) == '"' && elsoindex == 0){
-//                elsoindex=i;
-//            } else if(JSONreply.charAt(i) == '"' && elsoindex != 0){
-//                if(kulcs.equals("")){
-//                    kulcs=JSONreply.substring(elsoindex+1, i);
-//                } else {
-//                    ertek=JSONreply.substring(elsoindex+1, i);
-//                    map.put(kulcs, ertek);
-//                    kulcs="";
-//                }
-//            }
-//        }
-//                
-        
+
         JSONObject array = (JSONObject)JSONValue.parse(JSONreply);
-        obj = (JSONObject)array.get(0);
 
         Long state = (Long)array.get("state");
         if (state==0){

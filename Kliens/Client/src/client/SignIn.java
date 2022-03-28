@@ -130,7 +130,7 @@ public class SignIn extends javax.swing.JFrame {
         
         if (client.SignIn(username, password)){
             switch (client.getRole()){
-                case "ADMIN":
+                case "admin":
                     new Admin(client).setVisible(true);
                     break;
                 case "KARBANTARTO":

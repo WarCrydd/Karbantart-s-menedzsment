@@ -173,6 +173,7 @@ public class Admin extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void felvetelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_felvetelActionPerformed
@@ -185,7 +186,7 @@ public class Admin extends javax.swing.JFrame {
         
         String JSONtext, JSONreply = "";
         JSONObject obj = new JSONObject();
-//        obj.put("hash", client.getHash());
+        obj.put("hash", client.getHash());
         obj.put("code", 3);
         obj.put("username", 2);
         obj.put("pw", 2);
@@ -193,6 +194,7 @@ public class Admin extends javax.swing.JFrame {
         obj.put("role", 2);
         JSONtext = obj.toJSONString();
         
+        JSONObject uzi = client.sendAndRecieveJSON(JSONtext);
     }//GEN-LAST:event_felvetelActionPerformed
 
     /**
