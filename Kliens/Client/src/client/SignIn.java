@@ -176,10 +176,11 @@ public class SignIn extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>      
-        
-        final String IP = "";
-        final int PORT = 11000;
+        //</editor-fold>     
+        final String IP3 = "192.168.0.122";
+        final String IP2 = "25.62.90.182";
+        final String IP = "25.54.161.46";
+        final int PORT = 8888;
         
         client = new Client(IP, PORT);
 

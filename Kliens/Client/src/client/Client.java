@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.logging.Level;
@@ -80,21 +81,30 @@ public class Client {
     }
 
     public boolean SignIn(String username, char[] password) {
-        String JSONtext, JSONreply = "";
+        String JSONtext, JSONreply ="";
         JSONObject obj = new JSONObject();
 //        obj.put("hash", hash);
         obj.put("code", 1);
         obj.put("username", username);
         obj.put("password", encrypt(password));
         JSONtext = obj.toJSONString();
+        System.out.println(JSONtext);
         try {
             out.writeUTF(JSONtext);
-            JSONreply = input.readUTF();
+            //System.out.println(JSONtext.getBytes().length);
+            //System.out.println(input.readAllBytes().length);
+            byte[] bytokxd=input.readAllBytes();
+            JSONreply = new String(bytokxd, StandardCharsets.UTF_8);
+            System.out.println(JSONreply);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
-        JSONArray array = (JSONArray)JSONValue.parse(JSONreply);
+
+        String str = "{ \"name\": \"Alice\", \"age\": 20 }";
+        
+        JSONArray array = (JSONArray)JSONValue.parse(str);
         obj = (JSONObject)array.get(0);
+
         boolean state = (Boolean)obj.get("state");
         if (state){
             hash = (String)obj.get("hash");
