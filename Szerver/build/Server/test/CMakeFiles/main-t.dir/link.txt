@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmain-t.a CMakeFiles/main-t.dir/main-t.cpp.o
+/usr/bin/ranlib libmain-t.a
