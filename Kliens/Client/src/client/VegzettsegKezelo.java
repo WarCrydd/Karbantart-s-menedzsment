@@ -180,18 +180,28 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
         obj.put("hash", client.getHash());
         obj.put("code", 7);
         obj.put("name", vegzettseg);
-        String kategoriak="[";
+        StringBuilder str = new StringBuilder();
+        str.append("[");
         ListModel<String> model = jList2.getModel();
         for(int i=0;i<model.getSize();i++){
             if(i!=model.getSize()-1)
-                kategoriak+="\""+model.getElementAt(i)+"\",";
+            {
+                str.append('"');
+                str.append(model.getElementAt(i));
+                str.append('"');
+                str.append(',');
+            }   
             else
-                kategoriak+="\""+model.getElementAt(i)+"\"";
+            {
+                str.append('"');
+                str.append(model.getElementAt(i));
+                str.append('"');
+            }   
+               
         }
-        kategoriak+="]";
-        obj.put("kategoriaid", kategoriak);
+        str.append("]");
         
-        JSONtext = obj.toJSONString();
+        JSONtext = "{\"kategoriaid\":" + str.toString() + ",\"code\":7,\"hash\":\"" +client.getHash() + "\",\"name\":\"" +vegzettseg +"\"}";
         System.out.println(JSONtext);
         
         JSONreply = client.sendAndRecieveJSON(JSONtext);
