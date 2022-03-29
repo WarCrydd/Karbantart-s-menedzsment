@@ -48,7 +48,7 @@ namespace Server_2
 
         public string solve(string json)
         {
-            JsonCommunication? js = JsonSerializer.Deserialize<JsonCommunication>(json.Substring(2));
+            JsonCommunication? js = JsonSerializer.Deserialize<JsonCommunication>(json);
 
             switch (js?.code)
             {

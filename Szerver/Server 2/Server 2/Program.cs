@@ -99,7 +99,7 @@ public class AsynchronousSocketListener
                 state.write("Read " + content.Length +" bytes from client: " + content);
             }
 
-            Send(state, content.Substring(0, 2) + state.solve(content));
+            Send(state, state.solve(content));
         }
         catch (Exception ex)
         {
@@ -113,7 +113,7 @@ public class AsynchronousSocketListener
     {
         try
         {
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
+            byte[] byteData = Encoding.UTF8.GetBytes(data+"\n");
             state.write("data to client:" + data);
             state.workSocket.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), state);
@@ -133,9 +133,9 @@ public class AsynchronousSocketListener
             int bytesSent = state.workSocket.EndSend(ar);
             state.write("Sent " + bytesSent + " bytes to client.");
 
-            state.workSocket.Shutdown(SocketShutdown.Both);
-            state.workSocket.Close();
-            
+            //state.workSocket.Shutdown(SocketShutdown.Both);
+            //state.workSocket.Close();
+
         }
         catch (Exception e)
         {
