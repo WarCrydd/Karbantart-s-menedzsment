@@ -9,7 +9,13 @@ public class AsynchronousSocketListener
 {
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
-    static List<Thread> threads = new List<Thread>();
+    static Socket listener;
+
+    static IPEndPoint localEndPoint;
+
+    public List<Sassion> sassions = new List<Sassion>();
+
+    public static bool live = false;
 
     public AsynchronousSocketListener()
     {
@@ -18,44 +24,69 @@ public class AsynchronousSocketListener
     public static void StartListening()
     {
         IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-        for(int i = 0; i< ipHostInfo.AddressList.Length; i++)
+        for (int i = 0; i < ipHostInfo.AddressList.Length; i++)
         {
             Console.WriteLine("[" + i + "]: " + ipHostInfo.AddressList[i].ToString());
         }
 
         IPAddress ipAddress = ipHostInfo.AddressList[Convert.ToInt16(Console.ReadLine())];
-        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 8888);
+        localEndPoint = new IPEndPoint(ipAddress, 8888);
         Console.WriteLine(ipAddress.ToString());
- 
-        Socket listener = new Socket(ipAddress.AddressFamily,
+
+        listener = new Socket(ipAddress.AddressFamily,
             SocketType.Stream, ProtocolType.Tcp);
- 
-        try
+
+        Thread main = new Thread(start);
+        main.Start();
+
+        live = true;
+
+        while(live)
         {
-            listener.Bind(localEndPoint);
-            listener.Listen(100);
+            string input = Console.ReadLine();
 
-            while (true)
+            if(input == "clear")
             {
-                allDone.Reset();
- 
-                //Console.WriteLine("Waiting for a connection...");
-                listener.BeginAccept(
-                    new AsyncCallback(AcceptCallback),
-                    listener);
-
-                allDone.WaitOne();
+                Console.Clear();
             }
 
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e.ToString());
+            if(input == "close")
+            {
+                live = false;
+            }
         }
 
         Console.WriteLine("\nPress ENTER to continue...");
         Console.Read();
 
+    }
+
+    public static void start()
+    {
+        while(live)
+        {
+            try
+            {
+                listener.Bind(localEndPoint);
+                listener.Listen(100);
+
+                while (true)
+                {
+                    allDone.Reset();
+
+                    listener.BeginAccept(
+                        new AsyncCallback(AcceptCallback),
+                        listener);
+
+                    allDone.WaitOne();
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+        }
     }
 
     public static void AcceptCallback(IAsyncResult ar)
@@ -75,7 +106,6 @@ public class AsynchronousSocketListener
             state.allDone.WaitOne();
         }
         Sassion.sassionStopd(state);
-        //threads.Add(new Thread(state.start));
     }
 
     public static void ReadCallback(IAsyncResult ar)
@@ -99,7 +129,7 @@ public class AsynchronousSocketListener
                 state.write("Read " + content.Length +" bytes from client: " + content);
             }
 
-            Send(state, content.Substring(0, 2) + state.solve(content));
+            Send(state,state.solve(content) + "\r\n");
         }
         catch (Exception ex)
         {
@@ -113,8 +143,10 @@ public class AsynchronousSocketListener
     {
         try
         {
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
+            byte[] byteData = Encoding.UTF8.GetBytes(data + "\n");
             state.write("data to client:" + data);
+            //state.workSocket.Send(byteData);
+            //return;
             state.workSocket.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), state);
         }
@@ -133,8 +165,8 @@ public class AsynchronousSocketListener
             int bytesSent = state.workSocket.EndSend(ar);
             state.write("Sent " + bytesSent + " bytes to client.");
 
-            state.workSocket.Shutdown(SocketShutdown.Both);
             state.workSocket.Close();
+            //state.workSocket.Close();
             
         }
         catch (Exception e)
