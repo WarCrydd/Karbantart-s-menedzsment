@@ -142,14 +142,10 @@ public class Operator extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SignOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignOutActionPerformed
-        String JSONtext, JSONreply = "";
-        JSONObject obj = new JSONObject();
-//        obj.put("hash", client.get);
-        obj.put("code", 2);
-        JSONtext = obj.toJSONString();
-        
-        
+        client.LogOut();
+        new SignIn(client).setVisible(true);       
         dispose();
+        
     }//GEN-LAST:event_SignOutActionPerformed
 
     /**
