@@ -23,6 +23,8 @@ namespace Server_2
 
         public const int BufferSize = 1024;
 
+        public bool live = false;
+
         public byte[] buffer = new byte[BufferSize];
 
         public StringBuilder sb = new StringBuilder();
@@ -31,8 +33,12 @@ namespace Server_2
 
         public string mhash = "";
 
-        public Sassion()
+        public Sassion(bool blank = false)
         {
+            if (blank)
+                return;
+
+            live = true;
             mhash = RandomHash();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("New Sassion started! \t -->" + mhash);
@@ -65,6 +71,7 @@ namespace Server_2
 
         public static void swrite(string ms)
         {
+            return;
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine(">>>>>>>>    " + "Kóbor áram :D" + "    <<<<<<<<");
             Console.ForegroundColor = ConsoleColor.Blue;
@@ -105,7 +112,7 @@ namespace Server_2
                     break;
 
                 case 7:
-                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujKepesites(json), options);
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujKepesites(js), options);
 
                 default:
                     Console.WriteLine("Nem ismert kérés");
@@ -362,9 +369,8 @@ namespace Server_2
             return jsr;
         }
 
-        JsonCommunicationResponse ujKepesites(string json)
+        JsonCommunicationResponse ujKepesites(JsonCommunication js)
         {
-            JsonVegzetseg js = JsonSerializer.Deserialize<JsonVegzetseg>(json);
 
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
@@ -385,6 +391,8 @@ namespace Server_2
                     state = 1
                 };
             }
+            dbClose();
+            dbOpen();
 
             command.CommandText = "SELECT MAX(ID) FROM Kepesites";
             var reader = command.ExecuteReader();
@@ -396,13 +404,17 @@ namespace Server_2
                 };
             }
             IDataRecord records = (IDataRecord)reader;
-            int id = (int)records[0];
+            Int64 id = (Int64)records[0];
+
+            reader.Close();
+            dbClose();
 
             command.CommandText = "INSERT INTO Szerelheti (KategoriaID, KepesitesID) VALUES";
-            foreach(var i in js.kategoriak)
+            foreach(var i in js.kategoriaaz)
             {
-                command.CommandText += "(" + i + "," + id + "),";
+                command.CommandText += "(" + getKategoriaID(i) + "," + id + "),";
             }
+            dbOpen();
             command.CommandText = command.CommandText.Substring(0, command.CommandText.Length - 1);
             if (command.ExecuteNonQuery() == -1)
             {
@@ -450,6 +462,30 @@ namespace Server_2
                 {
                     IDataRecord record = (IDataRecord)reader;
                     result = (Int64)record[0];                    
+                }
+            }
+
+            dbClose();
+            return result;
+        }
+
+        Int64 getKategoriaID(string data)
+        {
+            Int64 result = -1;
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                Select ID
+                FROM Kategoria
+                WHERE Megnevezes = '" + data + "'";
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord record = (IDataRecord)reader;
+                    result = (Int64)record[0];
                 }
             }
 

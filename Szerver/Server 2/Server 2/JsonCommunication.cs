@@ -21,6 +21,8 @@ namespace Server_2
         public string? leiras { get; set; }
         public int? kategoriaid { get; set; }
         public string? elhelyezkedes { get; set; }
+        public Int64? id { get; set; }
+        public List<string>? kategoriaaz { get; set; }
 
     }
 
@@ -31,6 +33,7 @@ namespace Server_2
         public string? name { get; set; }
         public string? role { get; set; }
         public List<JsonKategoria>? kategoria { get; set; }
+
     }
 
     public class JsonKategoria
@@ -73,12 +76,5 @@ namespace Server_2
         public string? sulyossag { get; set; }
         public DateTime? mettol { get; set; }
         public DateTime? meddig { get; set; }
-    }
-
-    public class JsonVegzetseg
-    {
-        public int? id { get; set; }
-        public string? name { get; set; }
-        public List<int> kategoriak { get; set; }
     }
 }

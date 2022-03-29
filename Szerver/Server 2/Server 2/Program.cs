@@ -68,6 +68,7 @@ public class AsynchronousSocketListener
                 }
             }
         }
+        main.Join();
 
         Console.WriteLine("\nPress ENTER to continue...");
         Console.Read();
@@ -112,7 +113,7 @@ public class AsynchronousSocketListener
         Sassion state = new Sassion();
         sassions.Add(state.mhash, state);
         state.workSocket = handler;
-        while(state.workSocket.Connected)
+        while(state.workSocket.Connected || state.live)
         {
             state.allDone.Reset();
             handler.BeginReceive(state.buffer, 0, Sassion.BufferSize, 0,
@@ -124,11 +125,12 @@ public class AsynchronousSocketListener
 
     public static void ReadCallback(IAsyncResult ar)
     {
+        Sassion state = new Sassion(true);
         try
         {
             String content = String.Empty;
 
-            Sassion state = (Sassion)ar.AsyncState;
+            state = (Sassion)ar.AsyncState;
             Socket handler = state.workSocket;
 
             int bytesRead = handler.EndReceive(ar);
@@ -155,12 +157,22 @@ public class AsynchronousSocketListener
 
             Send(state,state.solve(content) + "\n");
         }
+        catch (System.Net.Sockets.SocketException ex)
+        {
+            if (ex.ErrorCode == 10054)
+            {
+                //state.write("Elkaptam!!");
+                state.workSocket.Shutdown(SocketShutdown.Both);
+                state.workSocket.Close();
+                state.live = false;
+                return;
+            }
+
+            Console.WriteLine(ex.ToString());
+        }
         catch (Exception ex)
         {
-            Sassion state = (Sassion)ar.AsyncState;
-            //if(!state.workSocket.Connected)
-            //    Console.WriteLine(ex.ToString() + "\n1");
-            state.workSocket.Close();
+            Console.WriteLine(ex.ToString());
         }
     }
 
@@ -173,11 +185,22 @@ public class AsynchronousSocketListener
             state.workSocket.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), state);
         }
+        catch(System.Net.Sockets.SocketException ex)
+        {
+            if (ex.ErrorCode == 10054)
+            { 
+                //state.write("Elkaptam!!");
+                state.workSocket.Shutdown(SocketShutdown.Both);
+                state.workSocket.Close();
+                state.live = false;
+                return;
+            }
+
+            Console.WriteLine(ex.ToString());
+        }
         catch(Exception ex)
         {
-            //if (!state.workSocket.Connected)
-            //    Console.WriteLine(ex.ToString() + "\n1");
-            state.workSocket.Close();
+            Console.WriteLine(ex.ToString());
         }
     }
 
@@ -192,10 +215,22 @@ public class AsynchronousSocketListener
             //state.workSocket.Close();
             
         }
-        catch (Exception e)
+        catch (System.Net.Sockets.SocketException ex)
         {
-            if (!state.workSocket.Connected )
-                Console.WriteLine(e.ToString() + "\n1");
+            if (ex.ErrorCode == 10054)
+            {
+                //state.write("Elkaptam!!");
+                state.workSocket.Shutdown(SocketShutdown.Both);
+                state.workSocket.Close();
+                state.live = false;
+                return;
+            }
+
+            Console.WriteLine(ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
         }
         state.allDone.Set();
     }
