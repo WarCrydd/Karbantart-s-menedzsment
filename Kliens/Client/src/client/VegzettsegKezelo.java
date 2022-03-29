@@ -201,7 +201,7 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
         }
         str.append("]");
         
-        JSONtext = "{\"kategoriaid\":" + str.toString() + ",\"code\":7,\"hash\":\"" +client.getHash() + "\",\"name\":\"" +vegzettseg +"\"}";
+        JSONtext = "{\"kategoriaaz\":" + str.toString() + ",\"code\":7,\"hash\":\"" +client.getHash() + "\",\"name\":\"" +vegzettseg +"\"}";
         System.out.println(JSONtext);
         
         JSONreply = client.sendAndRecieveJSON(JSONtext);

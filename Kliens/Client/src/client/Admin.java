@@ -4,6 +4,8 @@
  */
 package client;
 
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +22,14 @@ public class Admin extends javax.swing.JFrame {
     public Admin(Client c) {
         initComponents();
         client = c;
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                client.LogOut();
+                new SignIn(client).setVisible(true);       
+                dispose();//To change body of generated methods, choose Tools | Templates.
+            }
+        });
     }
 
     /**
