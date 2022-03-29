@@ -5,9 +5,12 @@
  */
 package client;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
@@ -30,11 +33,13 @@ public class Client {
 
     // initialize socket and input output streams
     private Socket socket = null;
-    private DataInputStream input = null;
-    private DataOutputStream out = null;
+    private BufferedReader input = null;
+    private PrintWriter out = null;
 
     //Hash
     private String hash, name, role;
+    private String address;
+    private int port;
 
     public String getHash() {
         return hash;
@@ -50,16 +55,17 @@ public class Client {
 
     // constructor to put ip address and port
     public Client(String address, int port) {
+        this.address=address; this.port=port;
         // establish a connection
         try {
             socket = new Socket(address, port);
             System.out.println("Connected to: " + socket.getInetAddress().getHostAddress());
 
             // takes input from terminal
-            input = new DataInputStream(socket.getInputStream());
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // sends output to the socket
-            out = new DataOutputStream(socket.getOutputStream());            
+            out = new PrintWriter(socket.getOutputStream(),true);            
             
         } catch (UnknownHostException u) {
             error(u.getLocalizedMessage());
@@ -86,19 +92,27 @@ public class Client {
         close();*/
     }
     public JSONObject sendAndRecieveJSON(String json){
+       
         String reply="";
         try {
-            out.writeUTF(json); 
-            byte[] bytokxd=input.readAllBytes();
-            reply = new String(bytokxd, StandardCharsets.UTF_8);
+//            System.out.println(json);
+//            out.writeUTF(json); 
+//            byte[] bytokxd=input.readAllBytes();
+//            reply = new String(bytokxd, StandardCharsets.UTF_8);
+//            System.out.println(reply);
+              System.out.println(json);
+              out.print(json);
+              out.flush();
+              reply=input.readLine();
+              System.out.println(reply);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
         JSONObject array = (JSONObject)JSONValue.parse(reply);
-        Long state = (Long)array.get("state");
+        long state = (long)array.get("state");
         if (state==0){
             return array;
-        } else return null;
+        } else return new JSONObject();
     }
 
     public boolean SignIn(String username, char[] password) {
@@ -111,10 +125,14 @@ public class Client {
         JSONtext = obj.toJSONString();
         System.out.println(JSONtext);
         try {
-            out.writeUTF(JSONtext);
+            out.print(JSONtext);
+            out.flush();
             
-            byte[] bytokxd=input.readAllBytes();
-            JSONreply = new String(bytokxd, StandardCharsets.UTF_8);
+            JSONreply=input.readLine();
+            //out.writeUTF(JSONtext);
+            
+            //byte[] bytokxd=input.readAllBytes();
+            //JSONreply = new String(bytokxd, StandardCharsets.UTF_8);
             System.out.println(JSONreply);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
@@ -122,7 +140,7 @@ public class Client {
 
         JSONObject array = (JSONObject)JSONValue.parse(JSONreply);
 
-        Long state = (Long)array.get("state");
+        long state = (long)array.get("state");
         if (state==0){
             hash = (String)array.get("hash");
             name = (String)array.get("name");
@@ -137,7 +155,7 @@ public class Client {
         name = null;
     }
 
-    private String encrypt(char[] password) {
+    public String encrypt(char[] password) {
 
         /* MessageDigest instance for MD5. */
         MessageDigest m = null;

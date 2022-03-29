@@ -133,7 +133,7 @@ public class SignIn extends javax.swing.JFrame {
                 case "admin":
                     new Admin(client).setVisible(true);
                     break;
-                case "KARBANTARTO":
+                case "karbantarto":
                     new Karbantarto(client).setVisible(true);
                     break;
                 case "ESZKOZFELELOS":

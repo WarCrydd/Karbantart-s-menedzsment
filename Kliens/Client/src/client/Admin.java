@@ -4,6 +4,9 @@
  */
 package client;
 
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.json.simple.JSONObject;
 
 /**
@@ -12,7 +15,7 @@ import org.json.simple.JSONObject;
  */
 public class Admin extends javax.swing.JFrame {
 
-    private static Client client;
+    private Client client;
     
     public Admin(Client c) {
         initComponents();
@@ -181,20 +184,25 @@ public class Admin extends javax.swing.JFrame {
         String felhNev=beFelhasznaloNev.getText().trim();
         char[] jelszo1=beJelszo1.getPassword();
         char[] jelszo2=beJelszo2.getPassword();
-        String kepesites=beKepesites.getSelectedText();
+        int kepesites=Integer.parseInt(beKepesites.getText());
         String szerep=beSzerep.getText();
         
         String JSONtext, JSONreply = "";
         JSONObject obj = new JSONObject();
         obj.put("hash", client.getHash());
-        obj.put("code", 3);
-        obj.put("username", 2);
-        obj.put("pw", 2);
-        obj.put("school", 2);
-        obj.put("role", 2);
+        obj.put("code", 5);
+        obj.put("name", nev);
+        obj.put("username", felhNev);
+        obj.put("password", client.encrypt(jelszo1));
+        obj.put("school", kepesites);
+        obj.put("role", szerep);
         JSONtext = obj.toJSONString();
+
+        JSONObject uzi=new JSONObject();
+        uzi= client.sendAndRecieveJSON(JSONtext);
+        if(uzi.isEmpty()) System.out.println("hiba volt");
+        else System.out.println("sikeres volt");
         
-        JSONObject uzi = client.sendAndRecieveJSON(JSONtext);
     }//GEN-LAST:event_felvetelActionPerformed
 
     /**
