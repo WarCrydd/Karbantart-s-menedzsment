@@ -133,13 +133,13 @@ public class SignIn extends javax.swing.JFrame {
                 case "admin":
                     new Admin(client).setVisible(true);
                     break;
-                case "KARBANTARTO":
+                case "karbantarto":
                     new Karbantarto(client).setVisible(true);
                     break;
-                case "ESZKOZFELELOS":
+                case "eszkozfelelos":
                     new ResponsibleForAssets(client).setVisible(true);
                     break;
-                case "OPERATOR":
+                case "operator":
                     new Operator(client).setVisible(true);
                     break;
             }

@@ -98,7 +98,7 @@ public class Client {
         Long state = (Long)array.get("state");
         if (state==0){
             return array;
-        } else return null;
+        } else return new JSONObject();
     }
 
     public boolean SignIn(String username, char[] password) {
