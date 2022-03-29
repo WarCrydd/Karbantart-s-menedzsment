@@ -20,24 +20,51 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     /**
      * Creates new form ResponsibleForAssets
      */
-    private String azonosito="", nev="", kategoria="", elhelyezkedes="";
+    private String azonosito="", name="", kategoria="", elhelyezkedes="", leiras="";
     private String megnevezes="", szuloKategoria="", normaido="", karb_periodus="", instrukciok="";
-    private Vector kategoriak = new Vector();
+    private Vector<String> kategoriak = new Vector();
+    private Vector<String> kategoriaID = new Vector();
     
     public ResponsibleForAssets(Client c) {
         initComponents();
+        kategoriaField.removeAllItems();
+        szuloKategoriaField.removeAllItems();
+        //szuloKategoriaField.addItem("null");
         client = c;
-        String JSONtext;
+        String JSONtext = "";
         JSONObject JSONreply;
         JSONObject obj = new JSONObject();
         obj.put("hash", client.getHash());
         obj.put("code", 4);
         JSONtext = obj.toJSONString();
-        kategoriak.add(client.sendAndRecieveJSON(JSONtext)); //EZEKBŐL CSAK A NEVE KELL A KATEGÓRIÁKNAK
-        for(int i = 0; i < kategoriak.size(); i++){
-            kategoriaField.addItem(kategoriak.get(i).toString());
-            szuloKategoriaField.addItem(kategoriak.get(i).toString());
+        JSONreply = client.sendAndRecieveJSON(JSONtext);
+        System.out.println(JSONreply);
+        String egesz = JSONreply+"";
+        String[] egeszTomb = egesz.split("\"name\":"); //levágom a név tag utáni részeket és kiveszem a következő " jelig őket
+        for(int i = 0; i < egeszTomb.length; i++){
+            if(i == 0){
+                //az első nem kell
+            }else{
+                String tmp = egeszTomb[i].substring(1, egeszTomb[i].indexOf("\"", 2));
+                kategoriak.add(tmp);
+            }
+            
         }
+        for(int i = 0; i < kategoriak.size(); i++){
+            kategoriaField.addItem(kategoriak.get(i));
+            szuloKategoriaField.addItem(kategoriak.get(i));
+        }
+        
+        
+        egeszTomb = egesz.split("\"id\":");
+        for(int i = 0; i < egeszTomb.length; i++){
+            String tmp = egeszTomb[i].substring(0, egeszTomb[i].indexOf(","));
+            kategoriaID.add(tmp);
+            
+        }
+        
+        
+        
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -78,7 +105,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
         elhelyezkedesField = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        leirasField = new javax.swing.JTextArea();
         kategoriaField = new javax.swing.JComboBox<>();
         jButton3 = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
@@ -128,6 +155,8 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
 
         jLabel5.setText("Azonosító:");
 
+        azonositoField.setEnabled(false);
+
         jLabel6.setText("Név:");
 
         nevField.addActionListener(new java.awt.event.ActionListener() {
@@ -149,9 +178,9 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
             }
         });
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setRows(5);
-        jScrollPane2.setViewportView(jTextArea1);
+        leirasField.setColumns(20);
+        leirasField.setRows(5);
+        jScrollPane2.setViewportView(leirasField);
 
         kategoriaField.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -351,21 +380,24 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         azonosito = azonositoField.getText();
-        nev = nevField.getText();
+        name = nevField.getText();
         kategoria = kategoriaField.getSelectedItem().toString();
         elhelyezkedes = elhelyezkedesField.getText();
-        if(azonosito.equals("") || nev.equals("") || kategoria.equals("") || elhelyezkedes.equals("")){
+        leiras = leirasField.getText();
+        if(name.equals("") || kategoria.equals("") || elhelyezkedes.equals("") || leiras.equals("")){
             JOptionPane.showMessageDialog(rootPane, "Minden mező kitöltése kötelező", "Hiba", JOptionPane.INFORMATION_MESSAGE);
         }else{
+            int idx = kategoriak.indexOf(kategoria);
+            int kategID = Integer.parseInt(kategoriaID.get(idx));
             String JSONtext;
             JSONObject JSONreply;
             JSONObject obj = new JSONObject();
             obj.put("hash", client.getHash());
             obj.put("code", 6);
-            obj.put("azonosito", azonosito);
-            obj.put("nev", nev);
-            obj.put("kategoria", kategoria);
+            obj.put("name", name);
+            obj.put("kategoriaid", kategID);
             obj.put("elhelyezkedes", elhelyezkedes);
+            obj.put("leiras", leiras);
             JSONtext = obj.toJSONString();
             System.out.println(JSONtext);
             
@@ -377,6 +409,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
                 azonositoField.setText("");
                 nevField.setText("");
                 elhelyezkedesField.setText("");
+                leirasField.setText("");
             }
             
         }
@@ -398,16 +431,18 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
         if(megnevezes.equals("") || szuloKategoria.equals("") || normaido.equals("") || karb_periodus.equals("") || instrukciok.equals("")){
             JOptionPane.showMessageDialog(rootPane, "Minden mező kitöltése kötelező", "Hiba", JOptionPane.INFORMATION_MESSAGE);
         }else{
+            int idx = kategoriak.indexOf(szuloKategoria);
+            int kategID = Integer.parseInt(kategoriaID.get(idx));
             String JSONtext;
             JSONObject JSONreply;
             JSONObject obj = new JSONObject();
             obj.put("hash", client.getHash());
-            obj.put("code", 7);
-            obj.put("megnevezes", megnevezes);
-            obj.put("szuloKategoria", szuloKategoria);
-            obj.put("normaido", normaido);
-            obj.put("karb_periodus", karb_periodus);
-            obj.put("instrukciok", instrukciok);
+            obj.put("code", 3);
+            obj.put("name", megnevezes);
+            obj.put("parent", kategID);
+            obj.put("normaido", Integer.parseInt(normaido));
+            obj.put("karbperiod", karb_periodus);
+            obj.put("leiras", instrukciok);
             JSONtext = obj.toJSONString();
             System.out.println(JSONtext);
             
@@ -487,9 +522,9 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextField karb_periodusField;
     private javax.swing.JComboBox<String> kategoriaField;
+    private javax.swing.JTextArea leirasField;
     private javax.swing.JTextField megnevezesField;
     private javax.swing.JTextField nevField;
     private javax.swing.JTextField normaidoField;

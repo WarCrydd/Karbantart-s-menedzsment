@@ -116,7 +116,7 @@ public class Client {
     }
 
     public boolean SignIn(String username, char[] password) {
-        String JSONtext, JSONreply ="";
+        String JSONtext = "";String JSONreply ="";
         JSONObject obj = new JSONObject();
 //        obj.put("hash", hash);
         obj.put("code", 1);

@@ -184,7 +184,7 @@ public class Admin extends javax.swing.JFrame {
         String felhNev=beFelhasznaloNev.getText().trim();
         char[] jelszo1=beJelszo1.getPassword();
         char[] jelszo2=beJelszo2.getPassword();
-        int kepesites=Integer.parseInt(beKepesites.getText());
+        String kepesites=beKepesites.getText();
         String szerep=beSzerep.getText();
         
         String JSONtext, JSONreply = "";
