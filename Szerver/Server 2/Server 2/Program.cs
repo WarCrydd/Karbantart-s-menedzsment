@@ -13,7 +13,7 @@ public class AsynchronousSocketListener
 
     static IPEndPoint localEndPoint;
 
-    public List<Sassion> sassions = new List<Sassion>();
+    public static Dictionary<string, Sassion> sassions = new Dictionary<string, Sassion>();
 
     public static bool live = false;
 
@@ -31,6 +31,7 @@ public class AsynchronousSocketListener
 
         IPAddress ipAddress = ipHostInfo.AddressList[Convert.ToInt16(Console.ReadLine())];
         localEndPoint = new IPEndPoint(ipAddress, 8888);
+        Console.Clear();
         Console.WriteLine(ipAddress.ToString());
 
         listener = new Socket(ipAddress.AddressFamily,
@@ -53,6 +54,18 @@ public class AsynchronousSocketListener
             if(input == "close")
             {
                 live = false;
+            }
+
+            if(input.Contains("list"))
+            {
+                if(input.Contains("sockets"))
+                {
+                    int j = 0;
+                    foreach(var i in sassions)
+                    {
+                        Console.WriteLine("[" + j + "]---->>>>" + i.Key);
+                    }
+                }
             }
         }
 
@@ -97,6 +110,7 @@ public class AsynchronousSocketListener
         Socket handler = listener.EndAccept(ar);
 
         Sassion state = new Sassion();
+        sassions.Add(state.mhash, state);
         state.workSocket = handler;
         while(state.workSocket.Connected)
         {
@@ -123,19 +137,30 @@ public class AsynchronousSocketListener
             {
                 state.sb.Append(Encoding.UTF8.GetString(
                     state.buffer, 0, bytesRead));
-
+                content = "";
                 content = state.sb.ToString();
-
-                state.write("Read " + content.Length +" bytes from client: " + content);
+                while (content.IndexOf("}{") > 0)
+                {
+                    content = content.Replace("}{", ",");
+                }
+                state.write("Read " + content.Length + " bytes from client: " + content);
             }
 
-            Send(state,state.solve(content) + "\r\n");
+            JsonCommunication js = Sassion.dataToJson(content);
+            if (js.code != 1)
+            {
+                sassions[js.hash].workSocket = state.workSocket;
+                state = sassions[js.hash];
+            }
+
+            Send(state,state.solve(content) + "\n");
         }
         catch (Exception ex)
         {
             Sassion state = (Sassion)ar.AsyncState;
-            if(!state.workSocket.Connected)
-                Console.WriteLine(ex.ToString());
+            //if(!state.workSocket.Connected)
+            //    Console.WriteLine(ex.ToString() + "\n1");
+            state.workSocket.Close();
         }
     }
 
@@ -143,17 +168,16 @@ public class AsynchronousSocketListener
     {
         try
         {
-            byte[] byteData = Encoding.UTF8.GetBytes(data + "\n");
-            state.write("data to client:" + data);
-            //state.workSocket.Send(byteData);
-            //return;
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
+            state.write("Sent " + byteData.Length + "byte data to client: " + data.Substring(0, data.Length-1));
             state.workSocket.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), state);
         }
         catch(Exception ex)
         {
-            if (!state.workSocket.Connected)
-                Console.WriteLine(ex.ToString());
+            //if (!state.workSocket.Connected)
+            //    Console.WriteLine(ex.ToString() + "\n1");
+            state.workSocket.Close();
         }
     }
 
@@ -163,16 +187,15 @@ public class AsynchronousSocketListener
         try
         {  
             int bytesSent = state.workSocket.EndSend(ar);
-            state.write("Sent " + bytesSent + " bytes to client.");
 
-            state.workSocket.Close();
+            //state.workSocket.Shutdown(SocketShutdown.Both);
             //state.workSocket.Close();
             
         }
         catch (Exception e)
         {
-            if (!state.workSocket.Connected)
-                Console.WriteLine(e.ToString());
+            if (!state.workSocket.Connected )
+                Console.WriteLine(e.ToString() + "\n1");
         }
         state.allDone.Set();
     }

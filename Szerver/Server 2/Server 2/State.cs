@@ -16,6 +16,11 @@ namespace Server_2
 
         public ManualResetEvent allDone = new ManualResetEvent(false);
 
+        JsonSerializerOptions options = new JsonSerializerOptions
+        {
+            IgnoreNullValues = true
+        };
+
         public const int BufferSize = 1024;
 
         public byte[] buffer = new byte[BufferSize];
@@ -24,7 +29,7 @@ namespace Server_2
 
         public Socket workSocket = null;
 
-        string mhash = "";
+        public string mhash = "";
 
         public Sassion()
         {
@@ -51,42 +56,56 @@ namespace Server_2
         public void write(string ms)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine(mhash + "--->");
+            Console.WriteLine(">>>>>>>>    " + mhash + "    <<<<<<<<");
             Console.ForegroundColor = ConsoleColor.Blue;
+            //Console.BackgroundColor = ConsoleColor.Gray;
+            Console.WriteLine(ms);
+            Console.ResetColor();
+        }
+
+        public static void swrite(string ms)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(">>>>>>>>    " + "Kóbor áram :D" + "    <<<<<<<<");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            //Console.BackgroundColor = ConsoleColor.Gray;
             Console.WriteLine(ms);
             Console.ResetColor();
         }
 
         public string solve(string json)
         {
-            write(json.Substring(2));
-            JsonCommunication? js = JsonSerializer.Deserialize<JsonCommunication>(json.Substring(2));
+            //write(json);
+            JsonCommunication? js = JsonSerializer.Deserialize<JsonCommunication>(json);
 
             switch (js?.code)
             {
                 case 1:
-                    return JsonSerializer.Serialize<JsonCommunicationResponse>(belepes(js));
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(belepes(js), options);
                     break;
 
                 case 2:
-                    return JsonSerializer.Serialize<JsonCommunicationResponse>(kilepes(js));
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(kilepes(js), options);
                     break;
 
                 case 3:
-                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujKat(js));
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujKat(js), options);
                     break;
 
                 case 4:
-                    return JsonSerializer.Serialize<JsonCommunicationResponse>(katList(js));
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(listKategorioa(js), options);
                     break;
 
                 case 5:
-                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujFelhasznalo(js));
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujFelhasznalo(js), options);
                     break;
 
                 case 6:
-                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujEszkoz(js));
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujEszkoz(js), options);
                     break;
+
+                case 7:
+                    return JsonSerializer.Serialize<JsonCommunicationResponse>(ujKepesites(json), options);
 
                 default:
                     Console.WriteLine("Nem ismert kérés");
@@ -108,7 +127,7 @@ namespace Server_2
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                SELECT Nev
+                SELECT Nev, Szerep
                 FROM Felhasznalo
                 WHERE FelhasznaloNev =  '" + js.username + "' " +
                 "AND Jelszo ='" + js.password + "'";
@@ -117,17 +136,18 @@ namespace Server_2
             {
                 if (reader.Read())
                 {
+                    IDataRecord record = (IDataRecord)reader;
                     JsonCommunicationResponse jsrok = new JsonCommunicationResponse
                     {
                         hash = mhash,
                         state = 0,
-                        name = reader.GetString(0),
-                        role = "admin"
+                        name = (string)record[0],
+                        role = (string)record[1]
                     };
 
                     return jsrok;
                 }
-                write("Nincs kért Felhasználó");
+                write("Nincs a kért Felhasználó a rendszerben.");
             }
             dbClose();
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
@@ -141,19 +161,19 @@ namespace Server_2
         {
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
-                state = 1
+                state = 0
             };
             workSocket.Close();
             return jsr;
         }
 
-        JsonCommunicationResponse katList(JsonCommunication js)
+        JsonCommunicationResponse listKategorioa(JsonCommunication js)
         {
             dbOpen();
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                SELECT ID, Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periouds, Instrukciok
+                SELECT ID, Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periodus, Instrukciok
                 FROM Kategoria
                 ";
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
@@ -167,13 +187,51 @@ namespace Server_2
                 {
                     IDataRecord records = (IDataRecord)reader;
 
+                    Int64 id_ = 0;
+                    try 
+                    {
+                        id_ = Convert.ToInt64(records[0]);
+                    }
+                    catch
+                    {
+                        id_ = -1;
+                    }
+                    Int64 parent_ = 0;
+                    try 
+                    {
+                        parent_ = Convert.ToInt64(records[2]);
+                    }
+                    catch
+                    {
+                        parent_ = -1;
+                    }
+                    Int64 normaido_ = 0;
+                    try 
+                    {
+                        normaido_ = Convert.ToInt64(records[3]);
+
+                    }
+                    catch
+                    {
+                        normaido_ = -1;
+                    }
+                    Int64 karbperiod_ = 0;
+                    try
+                    {
+                        karbperiod_ = Convert.ToInt64(records[4]);
+                    }
+                    catch
+                    {
+                        karbperiod_ = -1;
+                    }
+
                     jsr.kategoria.Add(new JsonKategoria
                     {
-                        id = (int)records[0],
+                        id = id_,
                         name = (string)records[1],
-                        parent = (int)records[2],
-                        normaido = (int)records[3],
-                        karbperiod = (int)records[4],
+                        parent = parent_,
+                        normaido = normaido_,
+                        karbperiod = karbperiod_,
                         leiras = (string)records[5]
                     });
                     
@@ -184,6 +242,11 @@ namespace Server_2
             return jsr;
         }
 
+        JsonCommunicationResponse listEszkozok(JsonCommunication js)
+        {
+            return null;
+        }
+
         JsonCommunicationResponse ujKat(JsonCommunication js)
         {
 
@@ -191,19 +254,21 @@ namespace Server_2
             {
                 state = 0
             };
+            dbOpen();
             try
             {
-                dbOpen();
+                
                 var command = connection.CreateCommand();
                 command.CommandText =
                     @"
-                INSERT INTO Kategoria (Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periouds, Instrukciok)
+                INSERT INTO Kategoria (Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periodus, Instrukciok)
                 VALUES( '"
                         + js.name + "', "
                         + js.parent + ", "
                         + js.normaido + ", "
                         + js.karbperiod + ", '"
                         + js.leiras + "')";
+                write(command.CommandText);
                 if (command.ExecuteNonQuery() == -1)
                 {
                     return new JsonCommunicationResponse
@@ -214,7 +279,11 @@ namespace Server_2
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.ToString());
+                return new JsonCommunicationResponse
+                {
+                    state = 1
+                };
             }
             dbClose();
             return jsr;
@@ -226,20 +295,24 @@ namespace Server_2
             {
                 state = 0
             };
-            dbOpen();
+
             try
             {
+                //dbOpen();
                 var command = connection.CreateCommand();
                 command.CommandText =
                     @"
-                INSERT INTO Felhasznalo (Nev, FelhasznaloNev, Jelszo, KepesitesID, Munkaorak_szama)
+                INSERT INTO Felhasznalo (Nev, FelhasznaloNev, Jelszo, KepesitesID, Munkaorak_szama, Szerep)
                 VALUES( '"
                         + js.name + "', '"
                         + js.username + "', '"
                         + js.password + "', "
-                        + js.school + ", "
-                        + "8" + ")";
+                        + getKepesitesID(js.school) + ", "
+                        + "2" +", '" 
+                        + js.role + "')";
+
                 write(command.CommandText);
+                dbOpen();
                 if (command.ExecuteNonQuery() == -1)
                 {
                     return new JsonCommunicationResponse
@@ -270,13 +343,41 @@ namespace Server_2
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                INSERT INTO Eszkozok (Nev, KategoriaID, Leiras, Elhelyezkedes)
+                INSERT INTO Eszkozok (Megnevezes, KategoriaID, Leiras, Elhelyezkedes)
                 VALUES( '"
                     + js.name + "', "
-                    + js.katid + ", '"
+                    + js.kategoriaid + ", '"
                     + js.leiras + "', '"
                     + js.elhelyezkedes + "' "
-                    +")";
+                    + ")";
+            write(command.CommandText);
+            if (command.ExecuteNonQuery() == -1)
+            {
+                return new JsonCommunicationResponse
+                {
+                    state = 1
+                };
+            }
+            dbClose();
+            return jsr;
+        }
+
+        JsonCommunicationResponse ujKepesites(string json)
+        {
+            JsonVegzetseg js = JsonSerializer.Deserialize<JsonVegzetseg>(json);
+
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0
+            };
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                INSERT INTO Kepesites (Megnevezes)
+                VALUES( '"
+                    + js.name + "')";
+            dbOpen();
+            write(command.CommandText);
             if (command.ExecuteNonQuery() == -1)
             {
                 return new JsonCommunicationResponse
@@ -285,16 +386,75 @@ namespace Server_2
                 };
             }
 
+            command.CommandText = "SELECT MAX(ID) FROM Kepesites";
+            var reader = command.ExecuteReader();
+            if (!reader.Read())
+            {
+                return new JsonCommunicationResponse
+                {
+                    state = 1
+                };
+            }
+            IDataRecord records = (IDataRecord)reader;
+            int id = (int)records[0];
+
+            command.CommandText = "INSERT INTO Szerelheti (KategoriaID, KepesitesID) VALUES";
+            foreach(var i in js.kategoriak)
+            {
+                command.CommandText += "(" + i + "," + id + "),";
+            }
+            command.CommandText = command.CommandText.Substring(0, command.CommandText.Length - 1);
+            if (command.ExecuteNonQuery() == -1)
+            {
+                return new JsonCommunicationResponse
+                {
+                    state = 1
+                };
+            }
+            dbClose();
+                
             return jsr;
         }
+
         static void dbOpen()
         {
             connection.Open();
+            Sassion.swrite("DB kinyit");
         }
 
         static void dbClose()
         {
             connection.Close();
+            Sassion.swrite("DB zár");
+        }
+
+        public static JsonCommunication dataToJson(string data)
+        {
+            return JsonSerializer.Deserialize<JsonCommunication>(data);
+        }
+
+        Int64 getKepesitesID(string data)
+        {
+            Int64 result = -1;
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                Select ID
+                FROM Kepesites
+                WHERE Megnevezes = '" + data +"'";
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord record = (IDataRecord)reader;
+                    result = (Int64)record[0];                    
+                }
+            }
+
+            dbClose();
+            return result;
         }
     }
 }
