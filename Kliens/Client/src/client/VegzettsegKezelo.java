@@ -5,7 +5,9 @@
 package client;
 
 import java.util.Vector;
+import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
+import javax.swing.ListModel;
 import org.json.simple.JSONObject;
 
 /**
@@ -15,11 +17,13 @@ import org.json.simple.JSONObject;
 public class VegzettsegKezelo extends javax.swing.JFrame {
 
     private Vector<String> kategoriak = new Vector();
+    private Client client;
+    DefaultListModel dlm=new DefaultListModel();
+    DefaultListModel dlm2=new DefaultListModel();
     
     public VegzettsegKezelo(Client client) {
+        this.client=client;
         initComponents();
-        jList1.removeAll();
-        jList2.removeAll();
         String JSONtext = "";
         JSONObject JSONreply;
         JSONObject obj = new JSONObject();
@@ -36,7 +40,7 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
             }else{
                 String tmp = egeszTomb[i].substring(1, egeszTomb[i].indexOf("\"", 2));
                 kategoriak.add(tmp);
-                jList1.add(new JLabel(tmp));
+                dlm.addElement(tmp); 
             }
             
         }
@@ -57,9 +61,9 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
         jList1 = new javax.swing.JList<>();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList2 = new javax.swing.JList<>();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        hozzaad = new javax.swing.JButton();
+        visszavon = new javax.swing.JButton();
+        beVegzettseg = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -68,25 +72,32 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
 
         jLabel2.setText("Meglévő kategóriák");
 
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList1.setModel(dlm);
         jScrollPane1.setViewportView(jList1);
 
-        jList2.setModel(new javax.swing.AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        jList2.setModel(dlm2);
         jScrollPane2.setViewportView(jList2);
 
-        jButton1.setText(">>");
+        hozzaad.setText(">>");
+        hozzaad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hozzaadActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("<<");
+        visszavon.setText("<<");
+        visszavon.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                visszavonActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Hozzárendel");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -101,14 +112,14 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
                                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addComponent(hozzaad, javax.swing.GroupLayout.PREFERRED_SIZE, 49, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(visszavon, javax.swing.GroupLayout.PREFERRED_SIZE, 51, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(18, 18, 18)
                                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 138, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addComponent(beVegzettseg, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 111, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(127, 127, 127)
@@ -121,7 +132,7 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(beVegzettseg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -130,9 +141,9 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(23, 23, 23)
-                        .addComponent(jButton1)
+                        .addComponent(hozzaad)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jButton2))
+                        .addComponent(visszavon))
                     .addGroup(layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -142,7 +153,54 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void hozzaadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hozzaadActionPerformed
+        String selected=jList1.getSelectedValue();
+        System.out.println(selected);
+        dlm2.addElement(selected);
+        dlm.removeElement(selected);
+        jList1.clearSelection();
+    }//GEN-LAST:event_hozzaadActionPerformed
+
+    private void visszavonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visszavonActionPerformed
+        String selected=jList2.getSelectedValue();
+        dlm.addElement(selected);
+        dlm2.removeElement(selected);
+        jList2.clearSelection();
+    }//GEN-LAST:event_visszavonActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        String vegzettseg=beVegzettseg.getText().trim();
+        
+        String JSONtext;
+        JSONObject JSONreply;
+        JSONObject obj = new JSONObject();
+        obj.put("hash", client.getHash());
+        obj.put("code", 7);
+        obj.put("name", vegzettseg);
+        String kategoriak="[";
+        ListModel<String> model = jList2.getModel();
+        for(int i=0;i<model.getSize();i++){
+            if(i!=model.getSize()-1)
+                kategoriak+="\""+model.getElementAt(i)+"\",";
+            else
+                kategoriak+="\""+model.getElementAt(i)+"\"";
+        }
+        kategoriak+="]";
+        obj.put("kategoriaid", kategoriak);
+        
+        JSONtext = obj.toJSONString();
+        System.out.println(JSONtext);
+        
+        JSONreply = client.sendAndRecieveJSON(JSONtext);
+            if(JSONreply == new JSONObject()){
+                System.out.println("Hiba történt az adatok mentése során.");
+            }else{
+                System.out.println("Az adatok bekerültek az adatbázisba.");
+            }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -180,8 +238,8 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JTextField beVegzettseg;
+    private javax.swing.JButton hozzaad;
     private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -189,6 +247,6 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
     private javax.swing.JList<String> jList2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JButton visszavon;
     // End of variables declaration//GEN-END:variables
 }
