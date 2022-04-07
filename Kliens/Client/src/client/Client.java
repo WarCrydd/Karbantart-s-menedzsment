@@ -6,21 +6,17 @@
 package client;
 
 import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.ListModel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -38,12 +34,6 @@ public class Client {
 
     //Hash
     private String hash, name, role;
-    private String address;
-    private int port;
-
-    public String getHash() {
-        return hash;
-    }
 
     public String getRole() {
         return role;
@@ -55,7 +45,6 @@ public class Client {
 
     // constructor to put ip address and port
     public Client(String address, int port) {
-        this.address=address; this.port=port;
         // establish a connection
         try {
             socket = new Socket(address, port);
@@ -65,97 +54,168 @@ public class Client {
             input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // sends output to the socket
-            out = new PrintWriter(socket.getOutputStream(),true);            
-            
+            out = new PrintWriter(socket.getOutputStream(), true);
+
         } catch (UnknownHostException u) {
             error(u.getLocalizedMessage());
         } catch (IOException i) {
             error(i.getLocalizedMessage());
         }
-
-        
-        
-        /*
-        // string to read message from input
-        String line = "";
-
-        // keep reading until "Over" is input
-        while (!line.equals("Over")) {
-            try {
-                line = input.readUTF();
-                out.writeUTF(line);
-            } catch (IOException i) {
-                System.out.println(i);
-            }
-        }
-
-        close();*/
-    }
-    public JSONObject sendAndRecieveJSON(String json){
-       
-        String reply="";
-        try {
-//            System.out.println(json);
-//            out.writeUTF(json); 
-//            byte[] bytokxd=input.readAllBytes();
-//            reply = new String(bytokxd, StandardCharsets.UTF_8);
-//            System.out.println(reply);
-              System.out.println(json);
-              out.print(json);
-              out.flush();
-              reply=input.readLine();
-              System.out.println(reply);
-        } catch (IOException ex) {
-            Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        JSONObject array = (JSONObject)JSONValue.parse(reply);
-        long state = (long)array.get("state");
-        if (state==0){
-            return array;
-        } else return new JSONObject();
     }
 
-    public boolean SignIn(String username, char[] password) {
-        String JSONtext = "";String JSONreply ="";
-        JSONObject obj = new JSONObject();
-//        obj.put("hash", hash);
-        obj.put("code", 1);
-        obj.put("username", username);
-        obj.put("password", encrypt(password));
-        JSONtext = obj.toJSONString();
-        System.out.println(JSONtext);
+    public Object sendAndRecieveJSON(JSONObject JSON) {
+        String JSONtext = JSON.toJSONString(), JSONreply = null;
         try {
+            System.out.println(JSONtext);
             out.print(JSONtext);
             out.flush();
-            
-            JSONreply=input.readLine();
-            //out.writeUTF(JSONtext);
-            
-            //byte[] bytokxd=input.readAllBytes();
-            //JSONreply = new String(bytokxd, StandardCharsets.UTF_8);
+            JSONreply = input.readLine();
             System.out.println(JSONreply);
         } catch (IOException ex) {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return JSONValue.parse(JSONreply);
+    }
 
-        JSONObject array = (JSONObject)JSONValue.parse(JSONreply);
-
-        long state = (long)array.get("state");
-        if (state==0){
-            hash = (String)array.get("hash");
-            name = (String)array.get("name");
-            role = (String)array.get("role");
-            return true;
+    public boolean SignIn(String username, char[] password) {        
+        JSONObject obj = new JSONObject();
+        obj.put("code", 1);
+        obj.put("username", username);
+        obj.put("password", encrypt(password));
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            hash = (String) obj.get("hash");
+            name = (String) obj.get("name");
+            role = (String) obj.get("role");
         }
-        return false;
+        return state;
+    }
+
+    public boolean addMember(String name, String username, char[] password, String qualification, String role) {
+        JSONObject obj = new JSONObject();
+        obj.put("hash", hash);
+        obj.put("code", 5);
+        obj.put("name", name);
+        obj.put("username", username);
+        obj.put("password", encrypt(password));
+        obj.put("school", qualification);
+        obj.put("role", role);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        return state;
     }
     
-    public void LogOut(){
-        hash = null;
-        name = null;
+    public boolean addItem(String id, String name, String category, String location, String description) {
+        JSONObject obj = new JSONObject();
+        obj.put("code", 6);
+        obj.put("hash", hash);
+        obj.put("azonosito", id);        
+        obj.put("nev", name);
+        obj.put("kategoria", category);
+        obj.put("elhelyezkedes", location);
+        obj.put("leiras", description);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        return state;
+    }
+    
+    public boolean addCategory(String name, String category, String normaido, String period, String instructions) {
+        JSONObject obj = new JSONObject();
+        obj.put("code", 3);
+        obj.put("hash", hash);
+        obj.put("name", name);        
+        obj.put("parent", category);
+        obj.put("normaido", normaido);
+        obj.put("karbperiod", period);
+        obj.put("leiras", instructions);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        return state;
+    }
+    
+    public JSONArray getCategorys(){
+        JSONObject obj = new JSONObject();
+        JSONArray ret = null;
+        obj.put("hash", hash);
+        obj.put("code", 4);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            ret = (JSONArray)obj.get("kategoria");                  
+        }
+        
+        return ret;
+    }
+    
+    public JSONArray getTools(){
+        JSONObject obj = new JSONObject();
+        JSONArray ret = null;
+        obj.put("hash", hash);
+        obj.put("code", 8);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            ret = (JSONArray)obj.get("eszkoz");          
+        }        
+        return ret;
+    }
+    
+    public boolean assignQualification(String qualification){
+        //TYŰ, ezt azért lehet, hogy újra kéne gondolni.
+        String JSONtext;
+        JSONObject JSONreply;
+        JSONObject obj = new JSONObject();
+        obj.put("hash", hash);
+        obj.put("code", 7);
+        obj.put("name", qualification);
+        StringBuilder str = new StringBuilder();
+        str.append("[");
+        ListModel<String> model = null; //jList2.getModel(); volt ott
+        for(int i=0;i<model.getSize();i++){
+            if(i!=model.getSize()-1)
+            {
+                str.append('"');
+                str.append(model.getElementAt(i));
+                str.append('"');
+                str.append(',');
+            }   
+            else
+            {
+                str.append('"');
+                str.append(model.getElementAt(i));
+                str.append('"');
+            }   
+               
+        }
+        str.append("]");
+        
+        JSONtext = "{\"kategoriaaz\":" + str.toString() + ",\"code\":7,\"hash\":\"" +hash + "\",\"name\":\"" +qualification +"\"}";
+        System.out.println(JSONtext);
+        
+        JSONreply = (JSONObject)sendAndRecieveJSON(new JSONObject()); //JSONtext volt a paramétere.
+        return true;
     }
 
-    public String encrypt(char[] password) {
+    public void LogOut() {
+        JSONObject obj = new JSONObject();
+        obj.put("code", 2);
+        obj.put("hash", hash);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            hash = null;
+            name = null;
+            role = null;
+        }
+    }
+
+    private String encrypt(char[] password) {
 
         /* MessageDigest instance for MD5. */
         MessageDigest m = null;
@@ -178,7 +238,6 @@ public class Client {
         }
 
         /* Complete hashed password in hexadecimal format */
-        
         return s.toString();
     }
 

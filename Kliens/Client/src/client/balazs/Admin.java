@@ -2,14 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package client;
+package client.balazs;
 
+import client.Client;
+import client.Client;
+import client.akos.SignIn;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.simple.JSONObject;
 
 /**
  *
@@ -205,29 +204,23 @@ public class Admin extends javax.swing.JFrame {
         String felhNev=beFelhasznaloNev.getText().trim();
         char[] jelszo1=beJelszo1.getPassword();
         char[] jelszo2=beJelszo2.getPassword();
-        String kepesites=beKepesites.getText();
-        String szerep=beSzerep.getText();
+        String kepesites=beKepesites.getText().trim();
+        String szerep=beSzerep.getText().trim();
         
-        String JSONtext, JSONreply = "";
-        JSONObject obj = new JSONObject();
-        obj.put("hash", client.getHash());
-        obj.put("code", 5);
-        obj.put("name", nev);
-        obj.put("username", felhNev);
-        obj.put("password", client.encrypt(jelszo1));
-        obj.put("school", kepesites);
-        obj.put("role", szerep);
-        JSONtext = obj.toJSONString();
-
-        JSONObject uzi=new JSONObject();
-        uzi= client.sendAndRecieveJSON(JSONtext);
-        if(uzi.isEmpty()) System.out.println("hiba volt");
-        else System.out.println("sikeres volt");
-        
+        if (String.copyValueOf(jelszo1).equals(String.copyValueOf(jelszo2))){
+            boolean state = client.addMember(nev, felhNev, jelszo1, kepesites, szerep);
+            if (state){
+                //valami kell ide
+            }else{
+                //ide is
+            }
+        }else{
+            //Arra az esetre ha nem egyezik a két jelszó kéne még valamit bütykölni.
+        }        
     }//GEN-LAST:event_felvetelActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        new VegzettsegKezelo(client).setVisible(true); 
+        new VegzettsegKezelo(this, true, client).setVisible(true); 
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**

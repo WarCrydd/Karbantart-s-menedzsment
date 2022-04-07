@@ -2,48 +2,30 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package client;
+package client.balazs;
 
-import java.util.Vector;
+import client.Client;
+import java.util.List;
 import javax.swing.DefaultListModel;
-import javax.swing.JLabel;
-import javax.swing.ListModel;
-import org.json.simple.JSONObject;
 
 /**
  *
  * @author balazs
  */
-public class VegzettsegKezelo extends javax.swing.JFrame {
+public class VegzettsegKezelo extends javax.swing.JDialog {
 
-    private Vector<String> kategoriak = new Vector();
+    private List<String> kategoriak;
     private Client client;
-    DefaultListModel dlm=new DefaultListModel();
-    DefaultListModel dlm2=new DefaultListModel();
-    
-    public VegzettsegKezelo(Client client) {
-        this.client=client;
+    DefaultListModel dlm = new DefaultListModel();
+    DefaultListModel dlm2 = new DefaultListModel();
+
+    public VegzettsegKezelo(java.awt.Frame parent, boolean modal, Client c) {
+        super(parent, modal);
         initComponents();
-        String JSONtext = "";
-        JSONObject JSONreply;
-        JSONObject obj = new JSONObject();
-        obj.put("hash", client.getHash());
-        obj.put("code", 4);
-        JSONtext = obj.toJSONString();
-        JSONreply = client.sendAndRecieveJSON(JSONtext);
-        
-        String egesz = JSONreply+""; 
-        String[] egeszTomb = egesz.split("\"name\":"); //levágom a név tag utáni részeket és kiveszem a következő " jelig őket
-        for(int i = 0; i < egeszTomb.length; i++){
-            if(i == 0){
-                //az első nem kell
-            }else{
-                String tmp = egeszTomb[i].substring(1, egeszTomb[i].indexOf("\"", 2));
-                kategoriak.add(tmp);
-                dlm.addElement(tmp); 
-            }
-            
-        }
+        client = c;
+        kategoriak = client.getCategorys();
+
+        dlm.addAll(kategoriak);
     }
 
     /**
@@ -157,7 +139,7 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void hozzaadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hozzaadActionPerformed
-        String selected=jList1.getSelectedValue();
+        String selected = jList1.getSelectedValue();
         System.out.println(selected);
         dlm2.addElement(selected);
         dlm.removeElement(selected);
@@ -165,7 +147,7 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
     }//GEN-LAST:event_hozzaadActionPerformed
 
     private void visszavonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_visszavonActionPerformed
-        String selected=jList2.getSelectedValue();
+        String selected = jList2.getSelectedValue();
         dlm.addElement(selected);
         dlm2.removeElement(selected);
         jList2.clearSelection();
@@ -173,43 +155,12 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         String vegzettseg=beVegzettseg.getText().trim();
-        
-        String JSONtext;
-        JSONObject JSONreply;
-        JSONObject obj = new JSONObject();
-        obj.put("hash", client.getHash());
-        obj.put("code", 7);
-        obj.put("name", vegzettseg);
-        StringBuilder str = new StringBuilder();
-        str.append("[");
-        ListModel<String> model = jList2.getModel();
-        for(int i=0;i<model.getSize();i++){
-            if(i!=model.getSize()-1)
-            {
-                str.append('"');
-                str.append(model.getElementAt(i));
-                str.append('"');
-                str.append(',');
-            }   
-            else
-            {
-                str.append('"');
-                str.append(model.getElementAt(i));
-                str.append('"');
-            }   
-               
+        boolean state = client.assignQualification(vegzettseg);
+        if (state) {
+            System.out.println("Hiba történt az adatok mentése során.");
+        } else {
+            System.out.println("Az adatok bekerültek az adatbázisba.");
         }
-        str.append("]");
-        
-        JSONtext = "{\"kategoriaaz\":" + str.toString() + ",\"code\":7,\"hash\":\"" +client.getHash() + "\",\"name\":\"" +vegzettseg +"\"}";
-        System.out.println(JSONtext);
-        
-        JSONreply = client.sendAndRecieveJSON(JSONtext);
-            if(JSONreply == new JSONObject()){
-                System.out.println("Hiba történt az adatok mentése során.");
-            }else{
-                System.out.println("Az adatok bekerültek az adatbázisba.");
-            }
     }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
@@ -239,12 +190,19 @@ public class VegzettsegKezelo extends javax.swing.JFrame {
         }
         //</editor-fold>
 
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new VegzettsegKezelo(null).setVisible(true);
-            }
-        });
+        /* Create and display the dialog */
+//        java.awt.EventQueue.invokeLater(new Runnable() {
+//            public void run() {
+//                VegzettsegKezelo dialog = new VegzettsegKezelo(new javax.swing.JFrame(), true);
+//                dialog.addWindowListener(new java.awt.event.WindowAdapter() {
+//                    @Override
+//                    public void windowClosing(java.awt.event.WindowEvent e) {
+//                        System.exit(0);
+//                    }
+//                });
+//                dialog.setVisible(true);
+//            }
+//        });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

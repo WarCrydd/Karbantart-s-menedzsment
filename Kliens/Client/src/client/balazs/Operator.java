@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client;
+package client.balazs;
 
+import client.Client;
+import client.Client;
+import client.akos.SignIn;
+import client.akos.SignIn;
 import org.json.simple.JSONObject;
 
 /**

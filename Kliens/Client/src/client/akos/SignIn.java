@@ -3,8 +3,11 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client;
+package client.akos;
 
+import client.balazs.Operator;
+import client.Client;
+import client.marton.Karbantarto;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
@@ -130,20 +133,11 @@ public class SignIn extends javax.swing.JFrame {
         
         if (client.SignIn(username, password)){
             switch (client.getRole()){
-                case "admin":
-                    new Admin(client).setVisible(true);
-                    break;
-                case "karbantarto":
-                    new Karbantarto(client).setVisible(true);
-                    break;
-                case "eszkozfelelos":
-                    new ResponsibleForAssets(client).setVisible(true);
-                    break;
-                case "operator":
-                    new Operator(client).setVisible(true);
-                    break;
+                case "admin" -> new ResponsibleForAssets(client).setVisible(true);
+                case "karbantarto" -> new Karbantarto(client).setVisible(true);
+                case "eszkozfelelos" -> new ResponsibleForAssets(client).setVisible(true);
+                case "operator" -> new Operator(client).setVisible(true);
             }
-            
             dispose();
         }else{
             JOptionPane.showMessageDialog(null, "Hibás felhasználónév, vagy hibás jelszó!\nEllenőrizd az adatokat és próbáld újra.", "Sikertelen bejelentkezés", JOptionPane.WARNING_MESSAGE);
@@ -177,9 +171,8 @@ public class SignIn extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>     
-        final String IP3 = "192.168.0.122";
-        final String IP2 = "25.62.90.182";
-        final String IP = "25.54.161.46";
+        
+        final String IP = "192.168.10.4";
         final int PORT = 8888;
         
         client = new Client(IP, PORT);
