@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace Server_2
 {
     public class JsonCommunication
@@ -33,6 +28,12 @@ namespace Server_2
         public string? name { get; set; }
         public string? role { get; set; }
         public List<JsonKategoria>? kategoria { get; set; }
+        public List<JsonEszkoz>? eszkoz { get; set; }
+        public List<JsonFelhasznalo>? felhasznalo { get; set; }
+        public List<JsonKarbantartas>? karbantartas { get; set; }
+        public List<JsonKepesites>? kepesites { get; set; }
+        public List<JsonTask>? tasks { get; set; }
+        public List<JsonSzerelheti>? szerelhetis { get; set; }
 
     }
 
@@ -44,37 +45,57 @@ namespace Server_2
         public Int64? normaido { get; set; }
         public Int64? karbperiod { get; set; }
         public string? leiras { get; set; }
-
     }
 
     public class JsonEszkoz
     {
-        public int? id { get; set; }
+        public Int64? id { get; set; }
         public string? name { get; set; }
-        public int? kategoriaid { get; set; }
+        public Int64? kategoria_id { get; set; }
         public string? leiras { get; set; }
         public string? elhelyezkedes { get; set; }
     }
 
     public class JsonFelhasznalo
     {
-        public int? id { get; set; }
+        public Int64? id { get; set; }
         public string? name { get; set; }
         public string? role { get; set; }
         public string? username { get; set; }
         public string? password { get; set; }
-        public string? kepesitesid { get; set; }
-        public int? munkaorakszama { get; set; }
+        public Int64? kepesites_id { get; set; }
+        public Int64? munkaorakszama { get; set; }
     }
 
     public class JsonKarbantartas
     {
-        public int? id { get; set; }
-        public int? eszkozid { get; set; }
+        public Int64? id { get; set; }
+        public Int64? eszkoz_id { get; set; }
         public string? tipus { get; set; }
         public string? allapot { get; set; }
         public string? sulyossag { get; set; }
         public DateTime? mettol { get; set; }
         public DateTime? meddig { get; set; }
+    }
+
+    public class JsonKepesites
+    {
+        public Int64? id { get; set; }
+        public string? name { get; set; }
+    }
+
+    public class JsonTask
+    {
+        public Int64? id { get; set; }
+        public Int64? karbantartas_id { get; set; }
+        public Int64? karbantarto_id { get; set; }
+        public string? allapot { get; set; }
+        public string? indoklas { get; set; }
+    }
+
+    public class JsonSzerelheti
+    {
+        public Int64? kategoria_id { get; set; }
+        public Int64? kepesites_id { get; set; }
     }
 }

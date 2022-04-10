@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define DB_DEBUG
+
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -77,29 +79,26 @@ public class AsynchronousSocketListener
 
     public static void start()
     {
-        while(live)
+        try
         {
-            try
+            listener.Bind(localEndPoint);
+            listener.Listen(100);
+
+            while (live)
             {
-                listener.Bind(localEndPoint);
-                listener.Listen(100);
+                allDone.Reset();
 
-                while (true)
-                {
-                    allDone.Reset();
+                listener.BeginAccept(
+                    new AsyncCallback(AcceptCallback),
+                    listener);
 
-                    listener.BeginAccept(
-                        new AsyncCallback(AcceptCallback),
-                        listener);
-
-                    allDone.WaitOne();
-                }
-
+                allDone.WaitOne();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.ToString());
         }
     }
 
@@ -161,7 +160,6 @@ public class AsynchronousSocketListener
         {
             if (ex.ErrorCode == 10054)
             {
-                //state.write("Elkaptam!!");
                 state.workSocket.Shutdown(SocketShutdown.Both);
                 state.workSocket.Close();
                 state.live = false;
@@ -189,7 +187,6 @@ public class AsynchronousSocketListener
         {
             if (ex.ErrorCode == 10054)
             { 
-                //state.write("Elkaptam!!");
                 state.workSocket.Shutdown(SocketShutdown.Both);
                 state.workSocket.Close();
                 state.live = false;
@@ -210,16 +207,12 @@ public class AsynchronousSocketListener
         try
         {  
             int bytesSent = state.workSocket.EndSend(ar);
-
-            //state.workSocket.Shutdown(SocketShutdown.Both);
-            //state.workSocket.Close();
             
         }
         catch (System.Net.Sockets.SocketException ex)
         {
             if (ex.ErrorCode == 10054)
             {
-                //state.write("Elkaptam!!");
                 state.workSocket.Shutdown(SocketShutdown.Both);
                 state.workSocket.Close();
                 state.live = false;
