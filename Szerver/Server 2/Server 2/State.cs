@@ -9,8 +9,6 @@ namespace Server_2
     public class Sassion
     {
         #region variables
-        static string db_null = "null";
-
         static List<string> hashs = new List<string>();
 
         static SqliteConnection connection = new SqliteConnection("Data Source=karbantartas-menedzsment.db");
@@ -143,6 +141,7 @@ namespace Server_2
 
         JsonCommunicationResponse belepes(JsonCommunication js)
         {
+            JsonCommunicationResponse jsr;
             dbOpen();
             var command = connection.CreateCommand();
             command.CommandText =
@@ -157,20 +156,20 @@ namespace Server_2
                 if (reader.Read())
                 {
                     IDataRecord record = (IDataRecord)reader;
-                    JsonCommunicationResponse jsrok = new JsonCommunicationResponse
+                    jsr = new JsonCommunicationResponse
                     {
                         hash = mhash,
                         state = 0,
                         name = (string)record[0],
                         role = (string)record[1]
                     };
-
-                    return jsrok;
+                    dbClose();
+                    return jsr;
                 }
                 write("Nincs a kért Felhasználó a rendszerben.");
             }
             dbClose();
-            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            jsr = new JsonCommunicationResponse
             {
                 state = 1
             };
@@ -196,6 +195,7 @@ namespace Server_2
                 SELECT ID, Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periodus, Instrukciok
                 FROM Kategoria
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -206,14 +206,13 @@ namespace Server_2
                 while (reader.Read())
                 {
                     IDataRecord records = (IDataRecord)reader;
-
                     jsr.kategoria.Add(new JsonKategoria
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1],
-                        parent = records[2] == db_null ? -1 : Convert.ToInt64(records[2]),
-                        normaido = records[3] == db_null ? -1 : Convert.ToInt64(records[3]),
-                        karbperiod = records[4] == db_null ? -1 : Convert.ToInt64(records[4]),
+                        parent = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
+                        normaido = records[3] == DBNull.Value ? -1 : Convert.ToInt64(records[3]),
+                        karbperiod = records[4] == DBNull.Value ? -1 : Convert.ToInt64(records[4]),
                         leiras = (string)records[5]
                     });
                     
@@ -233,6 +232,7 @@ namespace Server_2
                 SELECT ID, Megnevezes, KategoriaID, Leiras, Elhelyezkedes
                 FROM Eszkozok
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -246,9 +246,9 @@ namespace Server_2
 
                     jsr.eszkoz.Add(new JsonEszkoz
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1],
-                        kategoria_id = records[2] == db_null ? -1 : Convert.ToInt64(records[2]),
+                        kategoria_id = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
                         leiras = (string)records[3],
                         elhelyezkedes = (string)records[4]
                     });
@@ -269,6 +269,7 @@ namespace Server_2
                 SELECT ID, Nev, FelhasznaloNev, KepesitesID, Munkaorak_szama, Szerep
                 FROM Felhasznalo
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -282,11 +283,11 @@ namespace Server_2
 
                     jsr.felhasznalo.Add(new JsonFelhasznalo
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1],
                         username = (string)records[2],
-                        kepesites_id = records[3] == db_null ? -1 : Convert.ToInt64(records[3]),
-                        munkaorakszama = records[4] == db_null ? -1 : Convert.ToInt64(records[4]),
+                        kepesites_id = records[3] == DBNull.Value ? -1 : Convert.ToInt64(records[3]),
+                        munkaorakszama = records[4] == DBNull.Value ? -1 : Convert.ToInt64(records[4]),
                         role = (string)records[5]
                     });
 
@@ -306,6 +307,7 @@ namespace Server_2
                 SELECT ID, EszkozId, Tipus, Allapot, Sulyossag, Mettol, Meddig
                 FROM Karbantartas
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -319,13 +321,13 @@ namespace Server_2
 
                     jsr.karbantartas.Add(new JsonKarbantartas
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
-                        eszkoz_id = records[1] == db_null ? -1 : Convert.ToInt64(records[1]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
+                        eszkoz_id = records[1] == DBNull.Value ? -1 : Convert.ToInt64(records[1]),
                         tipus = (string)records[2],
                         allapot = (string)records[3],
                         sulyossag = (string)records[4],
-                        mettol = records[5] == db_null ? new DateTime() : Convert.ToDateTime(records[5]),
-                        meddig = records[6] == db_null ? new DateTime() : Convert.ToDateTime(records[6])
+                        mettol = records[5] == DBNull.Value ? new DateTime() : Convert.ToDateTime(records[5]),
+                        meddig = records[6] == DBNull.Value ? new DateTime() : Convert.ToDateTime(records[6])
                     });
 
                 }
@@ -344,6 +346,7 @@ namespace Server_2
                 SELECT ID, Megnevezes
                 FROM Kepesites
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -357,7 +360,7 @@ namespace Server_2
 
                     jsr.kepesites.Add(new JsonKepesites
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1]
                     });
 
@@ -374,13 +377,14 @@ namespace Server_2
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                SELECT ID, Megnevezes
-                FROM Kepesites
+                SELECT ID, KarbantartasID, KarbantartoID, Allapot, Indoklas
+                FROM MunkaElfogadas
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
-                kepesites = new List<JsonKepesites>()
+                tasks = new List<JsonTask>()
             };
             using (var reader = command.ExecuteReader())
             {
@@ -388,10 +392,50 @@ namespace Server_2
                 {
                     IDataRecord records = (IDataRecord)reader;
 
-                    jsr.kepesites.Add(new JsonKepesites
+                    jsr.tasks.Add(new JsonTask
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
-                        name = (string)records[1]
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
+                        karbantartas_id = records[1] == DBNull.Value ? -1 : Convert.ToInt64(records[1]),
+                        karbantarto_id = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
+                        allapot = (string)records[3],
+                        indoklas = (string)records[4]
+                    });
+
+                }
+            }
+            dbClose();
+
+            return jsr;
+        }
+
+        JsonCommunicationResponse listSzerelheti(JsonCommunication js)
+        {
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                SELECT KategoriaID, KepesitesID
+                FROM Szerelheti
+                ";
+
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0,
+                tasks = new List<JsonTask>()
+            };
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord records = (IDataRecord)reader;
+
+                    jsr.tasks.Add(new JsonTask
+                    {
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
+                        karbantartas_id = records[1] == DBNull.Value ? -1 : Convert.ToInt64(records[1]),
+                        karbantarto_id = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
+                        allapot = (string)records[3],
+                        indoklas = (string)records[4]
                     });
 
                 }
@@ -576,8 +620,8 @@ namespace Server_2
 
         static void dbOpen()
         {
-            while (!connection_opened) ;
-            connection_opened = true;
+            while (connection_opened) ;
+                connection_opened = true;
             connection.Open();
             Sassion.swrite("DB kinyit");
         }
