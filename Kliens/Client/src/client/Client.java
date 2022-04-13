@@ -13,6 +13,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -77,6 +79,21 @@ public class Client {
         return JSONValue.parse(JSONreply);
     }
 
+    public JSONArray getAllSchool(){
+        JSONObject obj = new JSONObject();
+        JSONArray ret = null;
+        obj.put("code", 11);
+        obj.put("hash", hash);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            ret = (JSONArray)obj.get("kepesites");
+        }
+        System.out.println(ret);
+        return ret;
+        
+    }
+    
     public boolean SignIn(String username, char[] password) {        
         JSONObject obj = new JSONObject();
         obj.put("code", 1);

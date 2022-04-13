@@ -5,10 +5,14 @@
 package client.balazs;
 
 import client.Client;
-import client.Client;
 import client.akos.SignIn;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -17,10 +21,13 @@ import java.awt.event.WindowEvent;
 public class Admin extends javax.swing.JFrame {
 
     private Client client;
+    private String[] schools;
     
     public Admin(Client c) {
         initComponents();
         client = c;
+        feltolt();
+        
         this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
@@ -31,6 +38,25 @@ public class Admin extends javax.swing.JFrame {
         });
     }
 
+    private void feltolt(){
+        JSONArray array = client.getAllSchool();
+        System.out.println(array.size());
+        schools = new String[array.size()];
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject obj = (JSONObject)array.get(i);
+            schools[i] = obj.get("name").toString();
+        }
+        
+        beKepesites.setModel(new DefaultComboBoxModel(schools.clone()));
+        
+        beSzerep.addItem("Operátor");
+        beSzerep.addItem("Karbantartó");
+        beSzerep.addItem("Eszközfelelős");
+        
+        beKepesites.setSelectedIndex(0); 
+        beSzerep.setSelectedIndex(0); 
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -51,8 +77,6 @@ public class Admin extends javax.swing.JFrame {
         beNev = new javax.swing.JTextField();
         beFelhasznaloNev = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
-        beKepesites = new javax.swing.JTextField();
-        beSzerep = new javax.swing.JTextField();
         felvetel = new javax.swing.JButton();
         beJelszo1 = new javax.swing.JPasswordField();
         beJelszo2 = new javax.swing.JPasswordField();
@@ -60,6 +84,8 @@ public class Admin extends javax.swing.JFrame {
         jList1 = new javax.swing.JList<>();
         jButton2 = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
+        beKepesites = new javax.swing.JComboBox<>();
+        beSzerep = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -133,10 +159,10 @@ public class Admin extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(beNev)
                             .addComponent(beFelhasznaloNev)
-                            .addComponent(beKepesites)
-                            .addComponent(beSzerep)
                             .addComponent(beJelszo1)
-                            .addComponent(beJelszo2, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(beJelszo2, javax.swing.GroupLayout.DEFAULT_SIZE, 156, Short.MAX_VALUE)
+                            .addComponent(beKepesites, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(beSzerep, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 127, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 210, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -145,7 +171,7 @@ public class Admin extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(79, 79, 79)
                 .addComponent(felvetel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(59, 59, 59)
                 .addComponent(jButton2)
@@ -204,18 +230,18 @@ public class Admin extends javax.swing.JFrame {
         String felhNev=beFelhasznaloNev.getText().trim();
         char[] jelszo1=beJelszo1.getPassword();
         char[] jelszo2=beJelszo2.getPassword();
-        String kepesites=beKepesites.getText().trim();
-        String szerep=beSzerep.getText().trim();
+        String kepesites=beKepesites.getSelectedItem().toString();
+        String szerep=beSzerep.getSelectedItem().toString();
         
         if (String.copyValueOf(jelszo1).equals(String.copyValueOf(jelszo2))){
             boolean state = client.addMember(nev, felhNev, jelszo1, kepesites, szerep);
             if (state){
-                //valami kell ide
+                JOptionPane.showMessageDialog(null, "A felhasználó sikeresen hozzáadva a rendszerhez");
             }else{
-                //ide is
+                JOptionPane.showMessageDialog(null, "Hiba a felhasználó hozzáadása során!");
             }
         }else{
-            //Arra az esetre ha nem egyezik a két jelszó kéne még valamit bütykölni.
+            JOptionPane.showMessageDialog(null, "A megadott jelszavak nem egyeznek!");
         }        
     }//GEN-LAST:event_felvetelActionPerformed
 
@@ -262,9 +288,9 @@ public class Admin extends javax.swing.JFrame {
     private javax.swing.JTextField beFelhasznaloNev;
     private javax.swing.JPasswordField beJelszo1;
     private javax.swing.JPasswordField beJelszo2;
-    private javax.swing.JTextField beKepesites;
+    private javax.swing.JComboBox<String> beKepesites;
     private javax.swing.JTextField beNev;
-    private javax.swing.JTextField beSzerep;
+    private javax.swing.JComboBox<String> beSzerep;
     private javax.swing.JButton felvetel;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;

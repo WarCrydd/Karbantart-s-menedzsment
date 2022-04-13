@@ -48,10 +48,10 @@
                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
                           <Component id="beNev" max="32767" attributes="0"/>
                           <Component id="beFelhasznaloNev" max="32767" attributes="0"/>
-                          <Component id="beKepesites" max="32767" attributes="0"/>
-                          <Component id="beSzerep" max="32767" attributes="0"/>
                           <Component id="beJelszo1" alignment="0" max="32767" attributes="0"/>
-                          <Component id="beJelszo2" alignment="0" min="-2" pref="156" max="-2" attributes="0"/>
+                          <Component id="beJelszo2" alignment="0" pref="156" max="32767" attributes="0"/>
+                          <Component id="beKepesites" alignment="0" max="32767" attributes="0"/>
+                          <Component id="beSzerep" alignment="0" max="32767" attributes="0"/>
                       </Group>
                   </Group>
               </Group>
@@ -65,7 +65,7 @@
           <Group type="102" alignment="0" attributes="0">
               <EmptySpace min="-2" pref="79" max="-2" attributes="0"/>
               <Component id="felvetel" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace pref="10" max="32767" attributes="0"/>
               <Component id="jButton1" min="-2" max="-2" attributes="0"/>
               <EmptySpace min="-2" pref="59" max="-2" attributes="0"/>
               <Component id="jButton2" min="-2" max="-2" attributes="0"/>
@@ -188,10 +188,6 @@
         <Property name="text" type="java.lang.String" value="Jelsz&#xf3; &#xfa;jra:"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="beKepesites">
-    </Component>
-    <Component class="javax.swing.JTextField" name="beSzerep">
-    </Component>
     <Component class="javax.swing.JButton" name="felvetel">
       <Properties>
         <Property name="text" type="java.lang.String" value="Felv&#xe9;tel"/>
@@ -241,6 +237,26 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="beKepesites">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="0"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JComboBox" name="beSzerep">
+      <Properties>
+        <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
+          <StringArray count="0"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+      </AuxValues>
     </Component>
   </SubComponents>
 </Form>
