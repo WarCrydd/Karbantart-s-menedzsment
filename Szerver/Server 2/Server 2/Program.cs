@@ -179,7 +179,7 @@ public class AsynchronousSocketListener
         try
         {
             byte[] byteData = Encoding.UTF8.GetBytes(data);
-            state.write("Sent " + byteData.Length + "byte data to client: " + data.Substring(0, data.Length-1));
+            state.write("Sent " + byteData.Length + " bytes data to client: " + data.Substring(0, data.Length-1));
             state.workSocket.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), state);
         }
