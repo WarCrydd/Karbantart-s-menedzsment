@@ -71,6 +71,11 @@ public class SignIn extends javax.swing.JFrame {
         PASSWORD_LABEL.setText("Jelszó");
 
         USERNAME.setToolTipText("Add meg a felhasználóneved.");
+        USERNAME.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                USERNAMEActionPerformed(evt);
+            }
+        });
 
         PASSWORD.setToolTipText("Add meg a jelszavad.");
 
@@ -145,6 +150,10 @@ public class SignIn extends javax.swing.JFrame {
             PASSWORD.setText("");
         }
     }//GEN-LAST:event_SignInActionPerformed
+
+    private void USERNAMEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_USERNAMEActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_USERNAMEActionPerformed
 
     /**
      * @param args the command line arguments

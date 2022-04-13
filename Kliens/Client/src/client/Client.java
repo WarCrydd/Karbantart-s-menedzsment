@@ -218,6 +218,15 @@ public class Client {
         return true;
     }
 
+    public JSONObject feladatListaz(){
+        JSONObject obj = new JSONObject();
+        obj.put("code", 10);
+        obj.put("hash", hash);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        return obj;
+    }
+    
     public void LogOut() {
         JSONObject obj = new JSONObject();
         obj.put("code", 2);
