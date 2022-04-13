@@ -1,4 +1,6 @@
-﻿using System;
+﻿//#define DB_DEBUG
+
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -9,7 +11,13 @@ public class AsynchronousSocketListener
 {
     public static ManualResetEvent allDone = new ManualResetEvent(false);
 
-    static List<Thread> threads = new List<Thread>();
+    static Socket listener;
+
+    static IPEndPoint localEndPoint;
+
+    public static Dictionary<string, Sassion> sassions = new Dictionary<string, Sassion>();
+
+    public static bool live = false;
 
     public AsynchronousSocketListener()
     {
@@ -18,28 +26,68 @@ public class AsynchronousSocketListener
     public static void StartListening()
     {
         IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-        for(int i = 0; i< ipHostInfo.AddressList.Length; i++)
+        for (int i = 0; i < ipHostInfo.AddressList.Length; i++)
         {
             Console.WriteLine("[" + i + "]: " + ipHostInfo.AddressList[i].ToString());
         }
 
         IPAddress ipAddress = ipHostInfo.AddressList[Convert.ToInt16(Console.ReadLine())];
-        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 8888);
+        localEndPoint = new IPEndPoint(ipAddress, 8888);
+        Console.Clear();
         Console.WriteLine(ipAddress.ToString());
- 
-        Socket listener = new Socket(ipAddress.AddressFamily,
+
+        listener = new Socket(ipAddress.AddressFamily,
             SocketType.Stream, ProtocolType.Tcp);
- 
+
+        Thread main = new Thread(start);
+        main.Start();
+
+        live = true;
+
+        while(live)
+        {
+            string input = Console.ReadLine();
+
+            if(input == "clear")
+            {
+                Console.Clear();
+            }
+
+            if(input == "close")
+            {
+                live = false;
+            }
+
+            if(input.Contains("list"))
+            {
+                if(input.Contains("sockets"))
+                {
+                    int j = 0;
+                    foreach(var i in sassions)
+                    {
+                        Console.WriteLine("[" + j + "]---->>>>" + i.Key);
+                    }
+                }
+            }
+        }
+        main.Join();
+
+        Console.WriteLine("\nPress ENTER to continue...");
+        Console.Read();
+
+    }
+
+    public static void start()
+    {
         try
         {
             listener.Bind(localEndPoint);
             listener.Listen(100);
 
-            while (true)
+            while (live)
             {
                 allDone.Reset();
- 
-                //Console.WriteLine("Waiting for a connection...");
+
                 listener.BeginAccept(
                     new AsyncCallback(AcceptCallback),
                     listener);
@@ -52,10 +100,6 @@ public class AsynchronousSocketListener
         {
             Console.WriteLine(e.ToString());
         }
-
-        Console.WriteLine("\nPress ENTER to continue...");
-        Console.Read();
-
     }
 
     public static void AcceptCallback(IAsyncResult ar)
@@ -66,8 +110,9 @@ public class AsynchronousSocketListener
         Socket handler = listener.EndAccept(ar);
 
         Sassion state = new Sassion();
+        sassions.Add(state.mhash, state);
         state.workSocket = handler;
-        while(state.workSocket.Connected)
+        while(state.workSocket.Connected || state.live)
         {
             state.allDone.Reset();
             handler.BeginReceive(state.buffer, 0, Sassion.BufferSize, 0,
@@ -75,16 +120,16 @@ public class AsynchronousSocketListener
             state.allDone.WaitOne();
         }
         Sassion.sassionStopd(state);
-        //threads.Add(new Thread(state.start));
     }
 
     public static void ReadCallback(IAsyncResult ar)
     {
+        Sassion state = new Sassion(true);
         try
         {
             String content = String.Empty;
 
-            Sassion state = (Sassion)ar.AsyncState;
+            state = (Sassion)ar.AsyncState;
             Socket handler = state.workSocket;
 
             int bytesRead = handler.EndReceive(ar);
@@ -93,19 +138,39 @@ public class AsynchronousSocketListener
             {
                 state.sb.Append(Encoding.UTF8.GetString(
                     state.buffer, 0, bytesRead));
-
+                content = "";
                 content = state.sb.ToString();
-
-                state.write("Read " + content.Length +" bytes from client: " + content);
+                while (content.IndexOf("}{") > 0)
+                {
+                    content = content.Replace("}{", ",");
+                }
+                state.write("Read " + content.Length + " bytes from client: " + content);
             }
 
-            Send(state, state.solve(content));
+            JsonCommunication js = Sassion.dataToJson(content);
+            if (js.code != 1)
+            {
+                sassions[js.hash].workSocket = state.workSocket;
+                state = sassions[js.hash];
+            }
+
+            Send(state,state.solve(content) + "\n");
+        }
+        catch (System.Net.Sockets.SocketException ex)
+        {
+            if (ex.ErrorCode == 10054)
+            {
+                state.workSocket.Shutdown(SocketShutdown.Both);
+                state.workSocket.Close();
+                state.live = false;
+                return;
+            }
+
+            Console.WriteLine(ex.ToString());
         }
         catch (Exception ex)
         {
-            Sassion state = (Sassion)ar.AsyncState;
-            if(!state.workSocket.Connected)
-                Console.WriteLine(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }
     }
 
@@ -113,15 +178,26 @@ public class AsynchronousSocketListener
     {
         try
         {
-            byte[] byteData = Encoding.UTF8.GetBytes(data+"\n");
-            state.write("data to client:" + data);
+            byte[] byteData = Encoding.UTF8.GetBytes(data);
+            state.write("Sent " + byteData.Length + "byte data to client: " + data.Substring(0, data.Length-1));
             state.workSocket.BeginSend(byteData, 0, byteData.Length, 0,
                 new AsyncCallback(SendCallback), state);
         }
+        catch(System.Net.Sockets.SocketException ex)
+        {
+            if (ex.ErrorCode == 10054)
+            { 
+                state.workSocket.Shutdown(SocketShutdown.Both);
+                state.workSocket.Close();
+                state.live = false;
+                return;
+            }
+
+            Console.WriteLine(ex.ToString());
+        }
         catch(Exception ex)
         {
-            if (!state.workSocket.Connected)
-                Console.WriteLine(ex.ToString());
+            Console.WriteLine(ex.ToString());
         }
     }
 
@@ -131,16 +207,23 @@ public class AsynchronousSocketListener
         try
         {  
             int bytesSent = state.workSocket.EndSend(ar);
-            state.write("Sent " + bytesSent + " bytes to client.");
-
-            //state.workSocket.Shutdown(SocketShutdown.Both);
-            //state.workSocket.Close();
-
+            
         }
-        catch (Exception e)
+        catch (System.Net.Sockets.SocketException ex)
         {
-            if (!state.workSocket.Connected)
-                Console.WriteLine(e.ToString());
+            if (ex.ErrorCode == 10054)
+            {
+                state.workSocket.Shutdown(SocketShutdown.Both);
+                state.workSocket.Close();
+                state.live = false;
+                return;
+            }
+
+            Console.WriteLine(ex.ToString());
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
         }
         state.allDone.Set();
     }

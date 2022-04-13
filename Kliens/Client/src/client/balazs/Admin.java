@@ -2,9 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package client;
+package client.balazs;
 
-import org.json.simple.JSONObject;
+import client.Client;
+import client.Client;
+import client.akos.SignIn;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  *
@@ -12,11 +16,19 @@ import org.json.simple.JSONObject;
  */
 public class Admin extends javax.swing.JFrame {
 
-    private static Client client;
+    private Client client;
     
     public Admin(Client c) {
         initComponents();
         client = c;
+        this.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                client.LogOut();
+                new SignIn(client).setVisible(true);       
+                dispose();//To change body of generated methods, choose Tools | Templates.
+            }
+        });
     }
 
     /**
@@ -47,6 +59,7 @@ public class Admin extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
         jButton2 = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -87,6 +100,13 @@ public class Admin extends javax.swing.JFrame {
 
         jButton2.setText("Felhasználó adatainak módosítása");
 
+        jButton1.setText("Végzettségek kezelése");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -126,6 +146,8 @@ public class Admin extends javax.swing.JFrame {
                 .addGap(79, 79, 79)
                 .addComponent(felvetel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(59, 59, 59)
                 .addComponent(jButton2)
                 .addGap(70, 70, 70))
         );
@@ -168,11 +190,13 @@ public class Admin extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(felvetel)
-                    .addComponent(jButton2))
+                    .addComponent(jButton2)
+                    .addComponent(jButton1))
                 .addContainerGap(18, Short.MAX_VALUE))
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void felvetelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_felvetelActionPerformed
@@ -180,20 +204,24 @@ public class Admin extends javax.swing.JFrame {
         String felhNev=beFelhasznaloNev.getText().trim();
         char[] jelszo1=beJelszo1.getPassword();
         char[] jelszo2=beJelszo2.getPassword();
-        String kepesites=beKepesites.getSelectedText();
-        String szerep=beSzerep.getText();
+        String kepesites=beKepesites.getText().trim();
+        String szerep=beSzerep.getText().trim();
         
-        String JSONtext, JSONreply = "";
-        JSONObject obj = new JSONObject();
-//        obj.put("hash", client.getHash());
-        obj.put("code", 3);
-        obj.put("username", 2);
-        obj.put("pw", 2);
-        obj.put("school", 2);
-        obj.put("role", 2);
-        JSONtext = obj.toJSONString();
-        
+        if (String.copyValueOf(jelszo1).equals(String.copyValueOf(jelszo2))){
+            boolean state = client.addMember(nev, felhNev, jelszo1, kepesites, szerep);
+            if (state){
+                //valami kell ide
+            }else{
+                //ide is
+            }
+        }else{
+            //Arra az esetre ha nem egyezik a két jelszó kéne még valamit bütykölni.
+        }        
     }//GEN-LAST:event_felvetelActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        new VegzettsegKezelo(this, true, client).setVisible(true); 
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -238,6 +266,7 @@ public class Admin extends javax.swing.JFrame {
     private javax.swing.JTextField beNev;
     private javax.swing.JTextField beSzerep;
     private javax.swing.JButton felvetel;
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

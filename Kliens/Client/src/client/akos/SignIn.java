@@ -3,8 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package client;
+package client.akos;
 
+import client.balazs.Operator;
+import client.Client;
+import client.balazs.Admin;
+import client.marton.Karbantarto;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.swing.JOptionPane;
@@ -129,21 +133,12 @@ public class SignIn extends javax.swing.JFrame {
         final char [] password = PASSWORD.getPassword();
         
         if (client.SignIn(username, password)){
-            /*switch (client.getRole()){
-                case "ADMIN":
-                    new Admin(client).setVisible(true);
-                    break;
-                case "KARBANTARTO":
-                    new Karbantarto(client).setVisible(true);
-                    break;
-                case "ESZKOZFELELOS":
-                    new ResponsibleForAssets(client).setVisible(true);
-                    break;
-                case "OPERATOR":
-                    new Operator(client).setVisible(true);
-                    break;
-            }*/
-            new Admin(client).setVisible(true);
+            switch (client.getRole()){
+                case "admin" -> new Admin(client).setVisible(true);
+                case "karbantarto" -> new Karbantarto(client).setVisible(true);
+                case "eszkozfelelos" -> new ResponsibleForAssets(client).setVisible(true);
+                case "operator" -> new Operator(client).setVisible(true);
+            }
             dispose();
         }else{
             JOptionPane.showMessageDialog(null, "Hibás felhasználónév, vagy hibás jelszó!\nEllenőrizd az adatokat és próbáld újra.", "Sikertelen bejelentkezés", JOptionPane.WARNING_MESSAGE);
@@ -176,7 +171,7 @@ public class SignIn extends javax.swing.JFrame {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(SignIn.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        //</editor-fold>      
+        //</editor-fold>     
         
         final String IP = "192.168.10.4";
         final int PORT = 8888;

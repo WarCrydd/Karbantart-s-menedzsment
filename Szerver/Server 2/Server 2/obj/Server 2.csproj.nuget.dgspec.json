@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Documents\\GitHub\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj": {}
+    "D:\\temp\\Szerver\\Server 2\\Server 2\\Server 2.csproj": {}
   },
   "projects": {
-    "D:\\Documents\\GitHub\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj": {
+    "D:\\temp\\Szerver\\Server 2\\Server 2\\Server 2.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Documents\\GitHub\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
+        "projectUniqueName": "D:\\temp\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
         "projectName": "Server 2",
-        "projectPath": "D:\\Documents\\GitHub\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
+        "projectPath": "D:\\temp\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
         "packagesPath": "C:\\Users\\Ákos\\.nuget\\packages\\",
-        "outputPath": "D:\\Documents\\GitHub\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\obj\\",
+        "outputPath": "D:\\temp\\Szerver\\Server 2\\Server 2\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Ákos\\AppData\\Roaming\\NuGet\\NuGet.Config",
