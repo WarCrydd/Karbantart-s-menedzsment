@@ -9,8 +9,7 @@ namespace Server_2
     public class Sassion
     {
         #region variables
-        static string db_null = "null";
-
+        //szerepek: karbantarto, eszkozfelelos, admin, operator 
         static List<string> hashs = new List<string>();
 
         static SqliteConnection connection = new SqliteConnection("Data Source=karbantartas-menedzsment.db");
@@ -34,7 +33,7 @@ namespace Server_2
 
         public Socket workSocket = null;
 
-        public string mhash = "";
+        public string mhash = "Nincs még érték!! Ezt nem lenne szabad látni!!";
         #endregion
 
         public Sassion(bool blank = false)
@@ -47,6 +46,12 @@ namespace Server_2
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("New Sassion started! \t -->" + mhash);
             Console.ResetColor();
+        }
+
+        public Sassion(Sassion prev)
+        {
+            write("Másolás történt!!");
+            mhash = RandomHash();
         }
 
         ~Sassion()
@@ -86,48 +91,91 @@ namespace Server_2
 
         public string solve(string json)
         {
-            JsonCommunication? js = JsonSerializer.Deserialize<JsonCommunication>(json);
-
-            string response = "";
-            switch (js?.code)
+            try
             {
-                case 1:
-                    response = JsonSerializer.Serialize<JsonCommunicationResponse>(belepes(js), options);
-                    break;
+                JsonCommunication? js = JsonSerializer.Deserialize<JsonCommunication>(json);
+                string response = "";
+                if (js.hash != mhash)
+                {
+                    write("Szar van a levesben");
+                }
+                switch (js?.code)
+                {
+                    case 1:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(belepes(js), options);
+                        break;
 
-                case 2:
-                    response = JsonSerializer.Serialize<JsonCommunicationResponse>(kilepes(js), options);
-                    break;
+                    case 2:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(kilepes(js), options);
+                        break;
 
-                case 3:
-                    response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujKat(js), options);
-                    break;
+                    case 3:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujKat(js), options);
+                        break;
 
-                case 4:
-                    response = JsonSerializer.Serialize<JsonCommunicationResponse>(listKategorioa(js), options);
-                    break;
+                    case 4:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listKategorioa(js), options);
+                        break;
 
-                case 5:
-                    response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujFelhasznalo(js), options);
-                    break;
+                    case 5:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujFelhasznalo(js), options);
+                        break;
 
-                case 6:
-                    response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujEszkoz(js), options);
-                    break;
+                    case 6:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujEszkoz(js), options);
+                        break;
 
-                case 7:
-                    response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujKepesites(js), options);
-                    break;
+                    case 7:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujKepesites(js), options);
+                        break;
 
-                default:
-                    Console.WriteLine("Nem ismert kérés");
-                    break;
+                    case 8:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listEszkozok(js), options);
+                        break;
 
+                    case 9:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listFelhasznalo(js), options);
+                        break;
+
+                    case 10:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listKarbantartas(js), options);
+                        break;
+
+                    case 11:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listKepesites(js), options);
+                        break;
+
+                    case 12:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listMunkaElfogadas(js), options);
+                        break;
+
+                    case 13:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listSzerelheti(js), options);
+                        break;
+
+                    case 14:
+                        response = JsonSerializer.Serialize<JsonCommunicationResponse>(listSzerelheti(js), options);
+                        break;
+
+                    default:
+                        Console.WriteLine("Nem ismert kérés");
+                        break;
+
+                }
+
+                sb.Clear();
+
+                return response;
             }
-
-            sb.Clear();
-
-            return response;
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(ex.Message);
+                Console.ResetColor();
+                dbClose();
+                sb.Clear();
+                return "{\"state\":1}";
+            }
         }
 
         string RandomHash()
@@ -143,6 +191,7 @@ namespace Server_2
 
         JsonCommunicationResponse belepes(JsonCommunication js)
         {
+            JsonCommunicationResponse jsr;
             dbOpen();
             var command = connection.CreateCommand();
             command.CommandText =
@@ -157,7 +206,7 @@ namespace Server_2
                 if (reader.Read())
                 {
                     IDataRecord record = (IDataRecord)reader;
-                    JsonCommunicationResponse jsrok = new JsonCommunicationResponse
+                    jsr = new JsonCommunicationResponse
                     {
                         hash = mhash,
                         state = 0,
@@ -165,12 +214,12 @@ namespace Server_2
                         role = (string)record[1]
                     };
                     dbClose();
-                    return jsrok;
+                    return jsr;
                 }
                 write("Nincs a kért Felhasználó a rendszerben.");
             }
             dbClose();
-            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            jsr = new JsonCommunicationResponse
             {
                 state = 1
             };
@@ -183,7 +232,9 @@ namespace Server_2
             {
                 state = 0
             };
-            workSocket.Close();
+            //workSocket.Close();
+            //TODO: Hiba!!
+            live = false;
             return jsr;
         }
 
@@ -196,6 +247,7 @@ namespace Server_2
                 SELECT ID, Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periodus, Instrukciok
                 FROM Kategoria
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -206,14 +258,13 @@ namespace Server_2
                 while (reader.Read())
                 {
                     IDataRecord records = (IDataRecord)reader;
-
                     jsr.kategoria.Add(new JsonKategoria
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1],
-                        parent = records[2] == db_null ? -1 : Convert.ToInt64(records[2]),
-                        normaido = records[3] == db_null ? -1 : Convert.ToInt64(records[3]),
-                        karbperiod = records[4] == db_null ? -1 : Convert.ToInt64(records[4]),
+                        parent = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
+                        normaido = records[3] == DBNull.Value ? -1 : Convert.ToInt64(records[3]),
+                        karbperiod = records[4] == DBNull.Value ? -1 : Convert.ToInt64(records[4]),
                         leiras = (string)records[5]
                     });
                     
@@ -233,6 +284,7 @@ namespace Server_2
                 SELECT ID, Megnevezes, KategoriaID, Leiras, Elhelyezkedes
                 FROM Eszkozok
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -246,9 +298,9 @@ namespace Server_2
 
                     jsr.eszkoz.Add(new JsonEszkoz
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1],
-                        kategoria_id = records[2] == db_null ? -1 : Convert.ToInt64(records[2]),
+                        kategoria_id = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
                         leiras = (string)records[3],
                         elhelyezkedes = (string)records[4]
                     });
@@ -269,6 +321,7 @@ namespace Server_2
                 SELECT ID, Nev, FelhasznaloNev, KepesitesID, Munkaorak_szama, Szerep
                 FROM Felhasznalo
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -282,11 +335,11 @@ namespace Server_2
 
                     jsr.felhasznalo.Add(new JsonFelhasznalo
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1],
                         username = (string)records[2],
-                        kepesites_id = records[3] == db_null ? -1 : Convert.ToInt64(records[3]),
-                        munkaorakszama = records[4] == db_null ? -1 : Convert.ToInt64(records[4]),
+                        kepesites_id = records[3] == DBNull.Value ? -1 : Convert.ToInt64(records[3]),
+                        munkaorakszama = records[4] == DBNull.Value ? -1 : Convert.ToInt64(records[4]),
                         role = (string)records[5]
                     });
 
@@ -297,7 +350,7 @@ namespace Server_2
             return jsr;
         }
 
-        JsonCommunicationResponse listKarbantartas(JsonCommunication js)
+        JsonCommunicationResponse listKarbantartas(JsonCommunication js) //TODO: szürés emberünknek a képzetségére
         {
             dbOpen();
             var command = connection.CreateCommand();
@@ -306,6 +359,7 @@ namespace Server_2
                 SELECT ID, EszkozId, Tipus, Allapot, Sulyossag, Mettol, Meddig
                 FROM Karbantartas
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -319,13 +373,13 @@ namespace Server_2
 
                     jsr.karbantartas.Add(new JsonKarbantartas
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
-                        eszkoz_id = records[1] == db_null ? -1 : Convert.ToInt64(records[1]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
+                        eszkoz_id = records[1] == DBNull.Value ? -1 : Convert.ToInt64(records[1]),
                         tipus = (string)records[2],
                         allapot = (string)records[3],
                         sulyossag = (string)records[4],
-                        mettol = records[5] == db_null ? new DateTime() : Convert.ToDateTime(records[5]),
-                        meddig = records[6] == db_null ? new DateTime() : Convert.ToDateTime(records[6])
+                        mettol = records[5] == DBNull.Value ? new DateTime() : Convert.ToDateTime(records[5]),
+                        meddig = records[6] == DBNull.Value ? new DateTime() : Convert.ToDateTime(records[6])
                     });
 
                 }
@@ -344,6 +398,7 @@ namespace Server_2
                 SELECT ID, Megnevezes
                 FROM Kepesites
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
@@ -357,7 +412,7 @@ namespace Server_2
 
                     jsr.kepesites.Add(new JsonKepesites
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
                         name = (string)records[1]
                     });
 
@@ -368,19 +423,20 @@ namespace Server_2
             return jsr;
         }
 
-        JsonCommunicationResponse listMunkaElfogadas(JsonCommunication js) //nincs kész.
+        JsonCommunicationResponse listMunkaElfogadas(JsonCommunication js)
         {
             dbOpen();
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                SELECT ID, Megnevezes
-                FROM Kepesites
+                SELECT ID, KarbantartasID, KarbantartoID, Allapot, Indoklas
+                FROM MunkaElfogadas
                 ";
+
             JsonCommunicationResponse jsr = new JsonCommunicationResponse
             {
                 state = 0,
-                kepesites = new List<JsonKepesites>()
+                tasks = new List<JsonTask>()
             };
             using (var reader = command.ExecuteReader())
             {
@@ -388,10 +444,47 @@ namespace Server_2
                 {
                     IDataRecord records = (IDataRecord)reader;
 
-                    jsr.kepesites.Add(new JsonKepesites
+                    jsr.tasks.Add(new JsonTask
                     {
-                        id = records[0] == db_null ? -1 : Convert.ToInt64(records[0]),
-                        name = (string)records[1]
+                        id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
+                        karbantartas_id = records[1] == DBNull.Value ? -1 : Convert.ToInt64(records[1]),
+                        karbantarto_id = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
+                        allapot = (string)records[3],
+                        indoklas = (string)records[4]
+                    });
+
+                }
+            }
+            dbClose();
+
+            return jsr;
+        }
+
+        JsonCommunicationResponse listSzerelheti(JsonCommunication js)
+        {
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                SELECT KategoriaID, KepesitesID
+                FROM Szerelheti
+                ";
+
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0,
+                szerelheti = new List<JsonSzerelheti>()
+            };
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord records = (IDataRecord)reader;
+
+                    jsr.szerelheti.Add(new JsonSzerelheti
+                    {
+                        kategoria_id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
+                        kepesites_id = records[1] == DBNull.Value ? -1 : Convert.ToInt64(records[1])
                     });
 
                 }
@@ -574,10 +667,42 @@ namespace Server_2
             return jsr;
         }
 
+        JsonCommunicationResponse ujKarbantartas(JsonCommunication js)
+        {
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0
+            };
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                INSERT INTO Karbantartas (EszkozID, Tipus, Allapot, Sulyossag, Mettol, Meddig)
+                VALUES( "
+                    + js.eszkozid + ", '"
+                    + js.tipus + "', '"
+                    + js.allapot + "', '"
+                    + js.sulyossag + "', '"
+                    + js.mettol + "', '"
+                    + js.meddig + "'"
+                    + ")";
+            write(command.CommandText);
+            if (command.ExecuteNonQuery() == -1)
+            {
+                dbClose();
+                return new JsonCommunicationResponse
+                {
+                    state = 1
+                };
+            }
+            dbClose();
+            return jsr;
+        }
+
         static void dbOpen()
         {
             while (connection_opened) ;
-            connection_opened = true;
+                connection_opened = true;
             connection.Open();
             Sassion.swrite("DB kinyit");
         }

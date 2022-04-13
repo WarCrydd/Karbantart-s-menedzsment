@@ -3,18 +3,24 @@ namespace Server_2
 {
     public class JsonCommunication
     {
-        public int code { get; set; }
+        public Int64 code { get; set; }
         public string? password { get; set; }
         public string? username { get; set; }
         public string? hash { get; set; }
         public string? name { get; set; }
         public string? school { get; set; }
         public string? role { get; set; }
-        public int? parent { get; set; }
-        public int? normaido { get; set; }
+        public Int64? parent { get; set; }
+        public Int64? normaido { get; set; }
         public string? karbperiod { get; set; }
         public string? leiras { get; set; }
-        public int? kategoriaid { get; set; }
+        public Int64? kategoriaid { get; set; }
+        public Int64? eszkozid { get; set; }
+        public string? tipus { get; set; }
+        public string? allapot { get; set; }
+        public string? sulyossag { get; set; }
+        public DateTime? mettol { get; set; }
+        public DateTime? meddig { get; set; }
         public string? elhelyezkedes { get; set; }
         public Int64? id { get; set; }
         public List<string>? kategoriaaz { get; set; }
@@ -33,7 +39,7 @@ namespace Server_2
         public List<JsonKarbantartas>? karbantartas { get; set; }
         public List<JsonKepesites>? kepesites { get; set; }
         public List<JsonTask>? tasks { get; set; }
-        public List<JsonSzerelheti>? szerelhetis { get; set; }
+        public List<JsonSzerelheti>? szerelheti { get; set; }
 
     }
 
