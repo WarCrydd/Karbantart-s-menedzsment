@@ -40,7 +40,6 @@ public class Admin extends javax.swing.JFrame {
 
     private void feltolt(){
         JSONArray array = client.getAllSchool();
-        System.out.println(array.size());
         schools = new String[array.size()];
         for (int i = 0; i < array.size(); i++) {
             JSONObject obj = (JSONObject)array.get(i);

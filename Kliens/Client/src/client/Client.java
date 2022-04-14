@@ -109,6 +109,18 @@ public class Client {
         }
         return state;
     }
+    
+    public boolean addNewMaintenance(String tool, String date, String description){
+        JSONObject obj = new JSONObject();
+        obj.put("hash", hash);
+        obj.put("code", 14);
+        obj.put("name", tool);
+        obj.put("date", date);
+        obj.put("description", description);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        return state;
+    }
 
     public boolean addMember(String name, String username, char[] password, String qualification, String role) {
         JSONObject obj = new JSONObject();
