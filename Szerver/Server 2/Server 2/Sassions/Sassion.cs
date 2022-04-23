@@ -7,7 +7,7 @@ using Json_Classes;
 
 namespace Server_2
 {
-    public abstract class Sassion
+    public class Sassion
     {
         #region variables
         //szerepek: karbantarto, eszkozfelelos, admin, operator 
