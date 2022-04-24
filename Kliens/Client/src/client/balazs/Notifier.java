@@ -9,8 +9,8 @@ import client.akos.SignIn;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -21,8 +21,8 @@ import org.json.simple.JSONObject;
 public class Notifier extends javax.swing.JFrame {
 
     private Client client;
-    private String[] tools;
-    
+    private DefaultTableModel dtm;
+        
     public Notifier(Client c) {
         initComponents();
         client=c;
@@ -32,13 +32,17 @@ public class Notifier extends javax.swing.JFrame {
 
     private void feltolt(){
         JSONArray array = client.getTools();
-        tools = new String[array.size()];
+        dtm=(DefaultTableModel) eszkozTable.getModel();
+        
         for (int i = 0; i < array.size(); i++) {
             JSONObject obj = (JSONObject)array.get(i);
-            tools[i] = obj.get("name").toString();
+            int sorsz = Integer.parseInt(obj.get("id").toString());
+            String nev = obj.get("name").toString();
+            String hely = obj.get("elhelyezkedes").toString();
+            
+            dtm.addRow(new Object[]{sorsz,nev,hely});
         }
         
-        eszkozComboBox.setModel(new DefaultComboBoxModel(tools.clone()));
     }
     
     public static boolean validateDate(String strDate){
@@ -71,13 +75,14 @@ public class Notifier extends javax.swing.JFrame {
         logOutButton = new javax.swing.JButton();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        eszkozComboBox = new javax.swing.JComboBox<>();
         jLabel4 = new javax.swing.JLabel();
         idopontTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         leirasTextField = new javax.swing.JTextField();
         bejelentesButton = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        eszkozTable = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -97,7 +102,7 @@ public class Notifier extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Segoe UI", 0, 16)); // NOI18N
         jLabel2.setText("Meghibásodás részletei:");
 
-        jLabel3.setText("Meghibásodott eszköz:");
+        jLabel3.setText("Meghibásodott eszköz kiválasztása:");
 
         jLabel4.setText("Meghibásodás időpontja:");
 
@@ -118,47 +123,82 @@ public class Notifier extends javax.swing.JFrame {
 
         jLabel6.setText("pl: 2010.01.01");
 
+        eszkozTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null},
+                {null, null, null},
+                {null, null, null},
+                {null, null, null}
+            },
+            new String [] {
+                "Sorszám", "Eszköz neve", "Helyszín"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        eszkozTable.setColumnSelectionAllowed(true);
+        eszkozTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(eszkozTable);
+        eszkozTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (eszkozTable.getColumnModel().getColumnCount() > 0) {
+            eszkozTable.getColumnModel().getColumn(0).setResizable(false);
+            eszkozTable.getColumnModel().getColumn(1).setResizable(false);
+            eszkozTable.getColumnModel().getColumn(2).setResizable(false);
+        }
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(bejelentkezettNeve, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(logOutButton))
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(128, 128, 128)
-                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(29, 29, 29)
-                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(168, 168, 168)
-                                .addComponent(jLabel5)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(leirasTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addGap(21, 21, 21)
-                                        .addComponent(bejelentesButton))
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(idopontTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addGap(140, 140, 140)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 302, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(eszkozComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 184, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 22, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addComponent(bejelentkezettNeve, javax.swing.GroupLayout.PREFERRED_SIZE, 104, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
+                                .addComponent(logOutButton))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 213, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGap(0, 0, Short.MAX_VALUE))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(idopontTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 503, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel5)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(leirasTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGap(0, 16, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(215, 215, 215)
+                .addComponent(bejelentesButton)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -168,24 +208,24 @@ public class Notifier extends javax.swing.JFrame {
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(bejelentkezettNeve)
                     .addComponent(logOutButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 236, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(eszkozComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(idopontTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel4)
+                    .addComponent(idopontTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(leirasTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(bejelentesButton)
-                .addGap(15, 15, 15))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         pack();
@@ -203,18 +243,24 @@ public class Notifier extends javax.swing.JFrame {
     }//GEN-LAST:event_idopontTextFieldActionPerformed
 
     private void bejelentesButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bejelentesButtonActionPerformed
-        String eszkoz = eszkozComboBox.getSelectedItem().toString();
-        String idopont= idopontTextField.getText().trim();
-        String leiras = leirasTextField.getText().trim();
-        if(!validateDate(idopont) || leiras.equals("")){
-            JOptionPane.showMessageDialog(null, "Minden mezőt helyesen tölts ki!");
-        } else {
-            if(client.addNewMaintenance(eszkoz, idopont, leiras)){
-                JOptionPane.showMessageDialog(null, "Sikeresen megtörtént a hiba rögzítése");
-            }else{
-                JOptionPane.showMessageDialog(null, "Hiba történt a hiba bejelentése során!");
+        int selectedrow = eszkozTable.getSelectedRow();
+        if(selectedrow != -1){
+            int eszkozid = Integer.parseInt(dtm.getValueAt(selectedrow, 0).toString());
+            String idopont= idopontTextField.getText().trim();
+            String leiras = leirasTextField.getText().trim();
+            if(!validateDate(idopont) || leiras.equals("")){
+                JOptionPane.showMessageDialog(null, "Minden mezőt helyesen tölts ki!");
+            } else {
+                if(client.addNewMaintenance(eszkozid, idopont, leiras)){
+                    JOptionPane.showMessageDialog(null, "Sikeresen megtörtént a hiba rögzítése");
+                }else{
+                    JOptionPane.showMessageDialog(null, "Hiba történt a hiba bejelentése során!");
+                }
             }
+        } else {
+            JOptionPane.showMessageDialog(null, "Válassza ki a meghibásodott eszközt!");
         }
+        
     }//GEN-LAST:event_bejelentesButtonActionPerformed
 
     /**
@@ -255,7 +301,7 @@ public class Notifier extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bejelentesButton;
     private javax.swing.JLabel bejelentkezettNeve;
-    private javax.swing.JComboBox<String> eszkozComboBox;
+    private javax.swing.JTable eszkozTable;
     private javax.swing.JTextField idopontTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -263,6 +309,7 @@ public class Notifier extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField leirasTextField;
     private javax.swing.JButton logOutButton;
     // End of variables declaration//GEN-END:variables

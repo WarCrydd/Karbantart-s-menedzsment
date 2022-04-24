@@ -110,11 +110,11 @@ public class Client {
         return state;
     }
     
-    public boolean addNewMaintenance(String tool, String date, String description){
+    public boolean addNewMaintenance(int toolid, String date, String description){
         JSONObject obj = new JSONObject();
         obj.put("hash", hash);
         obj.put("code", 14);
-        obj.put("name", tool);
+        obj.put("id", toolid);
         obj.put("date", date);
         obj.put("description", description);
         obj = (JSONObject)sendAndRecieveJSON(obj);
