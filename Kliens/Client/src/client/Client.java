@@ -242,13 +242,17 @@ public class Client {
         return true;
     }
 
-    public JSONObject feladatListaz(){
+    public JSONArray getTODoList(){
         JSONObject obj = new JSONObject();
+        JSONArray ret = null;
         obj.put("code", 10);
         obj.put("hash", hash);
-        
         obj = (JSONObject)sendAndRecieveJSON(obj);
-        return obj;
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            ret = (JSONArray)obj.get("karbantartas");                  
+        }
+        return ret;
     }
     
     public void LogOut() {

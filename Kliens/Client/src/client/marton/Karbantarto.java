@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 /**
@@ -20,15 +21,16 @@ import org.json.simple.JSONObject;
 public class Karbantarto extends javax.swing.JFrame {
 
     private Client client;
-    private List karbanTartasok = new ArrayList();
+    private List<JSONObject> karbanTartasok = new ArrayList();
     
     public Karbantarto(Client c) {
         initComponents();
         this.setLocationRelativeTo(null);
         this.client = c;
-        JSONObject obj = new JSONObject();
-        obj = client.feladatListaz();
+        JSONArray obj = client.getTODoList();
         System.out.println(obj.toJSONString());
+        listaFeltolt(obj);
+        
         tablazatGeneralo(karbanTartasok);
         elfogad.setEnabled(false);
         elutasit.setEnabled(false);
@@ -37,24 +39,28 @@ public class Karbantarto extends javax.swing.JFrame {
         
         
     }
+    
+    public void listaFeltolt(JSONArray tomb){
+        for (int i = 0; i < tomb.size(); i++) {
+            JSONObject obj = (JSONObject)tomb.get(i);
+            obj.put("elfogadasAllapota", "nincs elfogadva");
+            obj.put("feladatAllapota", "nincs kész");
+            karbanTartasok.add(obj);
+        }
+    }
 
     public void tablazatGeneralo(List karbanTartasok){
         this.napiFeladatok.removeAll();
-        String[] titles = {"eszközID", "típus", "súlyosság", "elfogadás állapota", "feladat állapota"};
-        //String[][] datas = new String[karbanTartasok.size()][4];  EZT KELL KIVENNI
-        String[][] datas = new String[1][5];
+        String[] titles = {"eszköz neve", "súlyosság", "helyszín", "elfogadás állapota", "feladat állapota"};
+        String[][] datas = new String[karbanTartasok.size()][5];
         for(int i = 0; i < karbanTartasok.size(); i++){
-            /*datas[i][0] = karbanTartasok.get(i).getEszkozID();    EZEKET IS  
-            datas[i][1] = karbanTartasok.get(i).getTipus();
-            datas[i][2] = karbanTartasok.get(i).getSulyossag;
-            datas[i][3] = karbanTartasok.get(i).getElfogadasAllapota();
-            datas[i][4] = karbanTartasok.get(i).getFeladatAllapota();*/
+            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+            datas[i][0] = tmp.get("name").toString();
+            datas[i][1] = tmp.get("sulyossag").toString();
+            datas[i][2] = tmp.get("helyszin").toString();
+            datas[i][3] = tmp.get("elfogadasAllapota").toString();
+            datas[i][4] = tmp.get("feladatAllapota").toString();
         }
-        datas[0][0] = "asd";
-        datas[0][1] = "dsa";
-        datas[0][2] = "cad";
-        datas[0][3] = "dec";
-        datas[0][4] = "Nincs kész";
         this.napiFeladatok.setModel(new DefaultTableModel(datas, titles));
     }
     
@@ -139,7 +145,7 @@ public class Karbantarto extends javax.swing.JFrame {
         jLabel3.setText("A következő feladat helyszíne:");
 
         helyszin.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        helyszin.setText("Helyszín");
+        helyszin.setText("Nincsen aktív feladat");
 
         kesz.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         kesz.setText("Készen van");
@@ -172,27 +178,25 @@ public class Karbantarto extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(25, 25, 25)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(helyszin, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(elfogad, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(59, 59, 59)
                         .addComponent(elutasit, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(35, 35, 35)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(16, 16, 16)
+                        .addGap(80, 80, 80)
                         .addComponent(kesz, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(56, 56, 56)
-                        .addComponent(nincsKesz, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(95, 95, 95)
-                        .addComponent(lepesek, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(nincsKesz, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 260, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(helyszin, javax.swing.GroupLayout.PREFERRED_SIZE, 691, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(lepesek, javax.swing.GroupLayout.PREFERRED_SIZE, 358, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap())))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
@@ -226,25 +230,24 @@ public class Karbantarto extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, 44, Short.MAX_VALUE)
                     .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(22, 22, 22)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(elutasit, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(elfogad, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(kesz, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(nincsKesz, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 172, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(22, 22, 22)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(elutasit, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(elfogad, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(kesz, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(nincsKesz, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(202, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(helyszin, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(lepesek, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(47, 47, 47))))
+                        .addComponent(lepesek, javax.swing.GroupLayout.PREFERRED_SIZE, 70, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 81, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(helyszin, javax.swing.GroupLayout.PREFERRED_SIZE, 82, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 93, Short.MAX_VALUE))))
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                 .addGroup(layout.createSequentialGroup()
                     .addGap(21, 21, 21)
@@ -262,8 +265,31 @@ public class Karbantarto extends javax.swing.JFrame {
     }//GEN-LAST:event_kijelentkezesActionPerformed
 
     private void elfogadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_elfogadActionPerformed
+        JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
+        obj.remove("elfogadasAllapota");
+        obj.put("elfogadasAllapota", "Elfogadva");
+        karbanTartasok.remove(napiFeladatok.getSelectedRow());
+        karbanTartasok.add(obj);
         napiFeladatok.setValueAt("Elfogadva", napiFeladatok.getSelectedRow(), 3);
-        //következő feladat helyszín változtatása
+        tablazatGeneralo(karbanTartasok);
+        boolean vanElfogadott = false;
+        int elfogadottIdx = -1;
+        for (int i = 0; i < karbanTartasok.size(); i++) {
+            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
+                vanElfogadott = true;
+                if(elfogadottIdx == -1){
+                    elfogadottIdx = i;
+                    break;
+                }
+            }
+        }
+        if(vanElfogadott == true){
+            JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
+            helyszin.setText(tmp.get("helyszin").toString());
+        }else{
+            helyszin.setText("Nincsen aktív feladat");
+        }
     }//GEN-LAST:event_elfogadActionPerformed
 
     private void napiFeladatokMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_napiFeladatokMouseClicked
@@ -276,16 +302,85 @@ public class Karbantarto extends javax.swing.JFrame {
     }//GEN-LAST:event_napiFeladatokMouseClicked
 
     private void elutasitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_elutasitActionPerformed
-        napiFeladatok.setValueAt("Semleges", napiFeladatok.getSelectedRow(), 3);
-        //következő feladat helyszín változtatása
+        JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
+        obj.remove("elfogadasAllapota");
+        obj.put("elfogadasAllapota", "nincs elfogadva");
+        karbanTartasok.remove(napiFeladatok.getSelectedRow());
+        karbanTartasok.add(obj);
+        napiFeladatok.setValueAt("nincs elfogadva", napiFeladatok.getSelectedRow(), 3);
+        tablazatGeneralo(karbanTartasok);
+        boolean vanElfogadott = false;
+        int elfogadottIdx = -1;
+        for (int i = 0; i < karbanTartasok.size(); i++) {
+            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
+                vanElfogadott = true;
+                if(elfogadottIdx == -1){
+                    elfogadottIdx = i;
+                    break;
+                }
+            }
+        }
+        if(vanElfogadott == true){
+            JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
+            helyszin.setText(tmp.get("helyszin").toString());
+        }else{
+            helyszin.setText("Nincsen aktív feladat");
+        }
     }//GEN-LAST:event_elutasitActionPerformed
 
     private void keszActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_keszActionPerformed
+        JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
+        obj.remove("feladatAllapota");
+        obj.put("feladatAllapota", "kész van");
+        karbanTartasok.remove(napiFeladatok.getSelectedRow());
+        karbanTartasok.add(obj);
         napiFeladatok.setValueAt("Kész", napiFeladatok.getSelectedRow(), 4);
+        tablazatGeneralo(karbanTartasok);
+        boolean vanElfogadott = false;
+        int elfogadottIdx = -1;
+        for (int i = 0; i < karbanTartasok.size(); i++) {
+            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
+                vanElfogadott = true;
+                if(elfogadottIdx == -1){
+                    elfogadottIdx = i;
+                }
+            }
+        }
+        if(vanElfogadott == true){
+            JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
+            helyszin.setText(tmp.get("helyszin").toString());
+        }else{
+            helyszin.setText("Nincsen aktív feladat");
+        }
     }//GEN-LAST:event_keszActionPerformed
 
     private void nincsKeszActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nincsKeszActionPerformed
+        JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
+        obj.remove("feladatAllapota");
+        obj.put("feladatAllapota", "nincs kész");
+        karbanTartasok.remove(napiFeladatok.getSelectedRow());
+        karbanTartasok.add(obj);
         napiFeladatok.setValueAt("Nincs kész", napiFeladatok.getSelectedRow(), 4);
+        tablazatGeneralo(karbanTartasok);
+        boolean vanElfogadott = false;
+        int elfogadottIdx = -1;
+        for (int i = 0; i < karbanTartasok.size(); i++) {
+            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
+                vanElfogadott = true;
+                if(elfogadottIdx == -1){
+                    elfogadottIdx = i;
+                }
+            }
+        }
+        if(vanElfogadott == true){
+            JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
+            helyszin.setText(tmp.get("helyszin").toString());
+        }else{
+            helyszin.setText("Nincsen aktív feladat");
+        }
     }//GEN-LAST:event_nincsKeszActionPerformed
 
     private void lepesekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lepesekActionPerformed

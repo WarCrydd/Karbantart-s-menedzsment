@@ -140,7 +140,7 @@ public class SignIn extends javax.swing.JFrame {
         
         if (client.SignIn(username, password)){
             switch (client.getRole()){
-                case "admin" -> new Admin(client).setVisible(true);
+                case "admin" -> new Karbantarto(client).setVisible(true);
                 case "karbantarto" -> new Karbantarto(client).setVisible(true);
                 case "eszkozfelelos" -> new ResponsibleForAssets(client).setVisible(true);
                 case "operator" -> new Operator(client).setVisible(true);
@@ -184,7 +184,7 @@ public class SignIn extends javax.swing.JFrame {
         }
         //</editor-fold>     
         
-        final String IP = "fe80::b123:433f:bc57:c80e%14";
+        final String IP = "25.54.161.46";
         final int PORT = 8888;
         
         client = new Client(IP, PORT);
