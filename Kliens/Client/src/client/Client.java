@@ -114,9 +114,9 @@ public class Client {
         JSONObject obj = new JSONObject();
         obj.put("hash", hash);
         obj.put("code", 14);
-        obj.put("id", toolid);
+        obj.put("eszkozid", toolid);
         obj.put("date", date);
-        obj.put("description", description);
+        obj.put("leiras", description);
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
         return state;

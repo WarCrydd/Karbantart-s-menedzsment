@@ -48,7 +48,7 @@ public class Notifier extends javax.swing.JFrame {
     public static boolean validateDate(String strDate){
 	if (strDate.trim().equals("")) return true;
 	else{
-	    SimpleDateFormat sdfrmt = new SimpleDateFormat("yyyy.MM.dd");
+	    SimpleDateFormat sdfrmt = new SimpleDateFormat("yyyy-MM-dd");
 	    sdfrmt.setLenient(false); 
 	    try{
 	        Date javaDate = sdfrmt.parse(strDate); 
@@ -125,10 +125,7 @@ public class Notifier extends javax.swing.JFrame {
 
         eszkozTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "Sorszám", "Eszköz neve", "Helyszín"
@@ -149,12 +146,14 @@ public class Notifier extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        eszkozTable.setColumnSelectionAllowed(true);
+        eszkozTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
+        eszkozTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         eszkozTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(eszkozTable);
         eszkozTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (eszkozTable.getColumnModel().getColumnCount() > 0) {
             eszkozTable.getColumnModel().getColumn(0).setResizable(false);
+            eszkozTable.getColumnModel().getColumn(0).setPreferredWidth(6);
             eszkozTable.getColumnModel().getColumn(1).setResizable(false);
             eszkozTable.getColumnModel().getColumn(2).setResizable(false);
         }
