@@ -122,14 +122,13 @@ public class Client {
         return state;
     }
 
-    public boolean addMember(String name, String username, char[] password, String qualification, String role) {
+    public boolean addMember(String name, String username, char[] password, String role) {
         JSONObject obj = new JSONObject();
         obj.put("hash", hash);
         obj.put("code", 5);
         obj.put("name", name);
         obj.put("username", username);
         obj.put("password", encrypt(password));
-        obj.put("school", qualification);
         obj.put("role", role);
         
         obj = (JSONObject)sendAndRecieveJSON(obj);
@@ -178,6 +177,19 @@ public class Client {
             ret = (JSONArray)obj.get("kategoria");                  
         }
         
+        return ret;
+    }
+    
+    public JSONArray getUsers(){
+        JSONObject obj = new JSONObject();
+        JSONArray ret = null;
+        obj.put("hash", hash);
+        obj.put("code", 9);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            ret = (JSONArray)obj.get("felhasznalo");          
+        }        
         return ret;
     }
     
