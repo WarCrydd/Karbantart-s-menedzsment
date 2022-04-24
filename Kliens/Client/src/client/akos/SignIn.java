@@ -144,7 +144,7 @@ public class SignIn extends javax.swing.JFrame {
                 case "karbantarto" -> new Karbantarto(client).setVisible(true);
                 case "eszkozfelelos" -> new ResponsibleForAssets(client).setVisible(true);
                 case "operator" -> new Operator(client).setVisible(true);
-                case "hibabejelento" -> new Notifier(client).setVisible(true);
+                case "Hiba bejelentő" -> new Notifier(client).setVisible(true);
             }
             dispose();
         }else{
