@@ -20,8 +20,10 @@ public class Operator extends javax.swing.JFrame {
         this.client=c;
         nameLabel.setText(client.getName()); 
         initComponents();
+        
     }
 
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -34,7 +36,7 @@ public class Operator extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         nameLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        karbantartasTable = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         LogOut = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
@@ -51,18 +53,39 @@ public class Operator extends javax.swing.JFrame {
         nameLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         nameLabel.setText("Név");
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        karbantartasTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Sorszám", "Eszköz", "Súlyosság", "Állapot"
             }
-        ));
-        jScrollPane1.setViewportView(jTable1);
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        karbantartasTable.setColumnSelectionAllowed(true);
+        karbantartasTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(karbantartasTable);
+        karbantartasTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (karbantartasTable.getColumnModel().getColumnCount() > 0) {
+            karbantartasTable.getColumnModel().getColumn(0).setResizable(false);
+            karbantartasTable.getColumnModel().getColumn(1).setResizable(false);
+            karbantartasTable.getColumnModel().getColumn(2).setResizable(false);
+            karbantartasTable.getColumnModel().getColumn(3).setResizable(false);
+        }
 
         jLabel3.setText("Rendszerben rögzített hibák:");
 
@@ -193,8 +216,8 @@ public class Operator extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JTable karbantartasTable;
     private javax.swing.JLabel nameLabel;
     // End of variables declaration//GEN-END:variables
 }

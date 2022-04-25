@@ -45,6 +45,7 @@ public class Admin extends javax.swing.JFrame {
             dlm.addElement(obj.get("username").toString());
         }
         
+        usernameList.setSelectedIndex(0);
         //--------------------------------------------------------
         
         beSzerep.addItem("Operátor");
@@ -239,7 +240,8 @@ public class Admin extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        new SchoolToUser(null, true).setVisible(true);
+        String username=usernameList.getSelectedValue();
+        new SchoolToUser(null, true, client, username).setVisible(true);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
