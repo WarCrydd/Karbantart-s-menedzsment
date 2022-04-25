@@ -1,4 +1,4 @@
-﻿#define MY_DEBUG
+#define MY_DEBUG
 
 using System;
 using System.Net;
@@ -197,5 +197,4 @@ public class Program
         server.startListening();
         return 0;
     }
-
 }
