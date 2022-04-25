@@ -17,11 +17,12 @@ namespace Json_Classes
         public string? leiras { get; set; }
         public Int64? kategoriaid { get; set; }
         public Int64? eszkozid { get; set; }
+        public Int64? karbantartoid { get; set; }
+        public Int64? kepesitesid { get; set; }
         public string? tipus { get; set; }
         public string? allapot { get; set; }
         public string? sulyossag { get; set; }
-        public DateTime? mettol { get; set; }
-        public DateTime? meddig { get; set; }
+        public DateTime? date { get; set; }
         public string? elhelyezkedes { get; set; }
         public Int64? id { get; set; }
         public List<string>? kategoriaaz { get; set; }
@@ -41,6 +42,7 @@ namespace Json_Classes
         public List<JsonKepesites>? kepesites { get; set; }
         public List<JsonTask>? tasks { get; set; }
         public List<JsonSzerelheti>? szerelheti { get; set; }
+        public List<JsonKepzetsegek>? kepzetsegek { get; set; }
 
     }
 
@@ -78,11 +80,11 @@ namespace Json_Classes
     {
         public Int64? id { get; set; }
         public Int64? eszkoz_id { get; set; }
-        public string? tipus { get; set; }
-        public string? allapot { get; set; }
+        public string? name { get; set; }
         public string? sulyossag { get; set; }
-        public DateTime? mettol { get; set; }
-        public DateTime? meddig { get; set; }
+        public string? helyszin { get; set; }
+        public DateTime? date { get; set; }
+        public string? leiras { get; set; }
     }
 
     public class JsonKepesites
@@ -103,6 +105,12 @@ namespace Json_Classes
     public class JsonSzerelheti
     {
         public Int64? kategoria_id { get; set; }
+        public Int64? kepesites_id { get; set; }
+    }
+
+    public class JsonKepzetsegek
+    {
+        public Int64? karbantarto_id { get; set; }
         public Int64? kepesites_id { get; set; }
     }
 }

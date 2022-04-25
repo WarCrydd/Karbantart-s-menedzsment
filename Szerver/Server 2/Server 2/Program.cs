@@ -1,4 +1,4 @@
-﻿//#define DB_DEBUG
+﻿#define MY_DEBUG
 
 using System;
 using System.Net;
@@ -6,17 +6,24 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using Server_2;
+using Server_2.Sassions;
 
 public class Server
 {
     #region variables
     Socket? listener;
     IPEndPoint? localEndPoint;
-    List<Sassion> sassion_list = new List<Sassion>();
     List<Thread> sassion_threads = new List<Thread>();
     public bool live = false;
     Thread main_thread;
     #endregion
+
+    void write(string ms)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine("A SERVER: " + ms);
+        Console.ResetColor();
+    }
 
     public Server()
     {
@@ -29,7 +36,7 @@ public class Server
         IPAddress ipAddress = ipHostInfo.AddressList[Convert.ToInt16(Console.ReadLine())];
         localEndPoint = new IPEndPoint(ipAddress, 8888);
         Console.Clear();
-        //Console.WriteLine(ipAddress.ToString());
+        write("A server IP címe: " + ipAddress.ToString());
 
         listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
     }
@@ -44,25 +51,56 @@ public class Server
         {
             string input = Console.ReadLine();
 
-            if(input == "clear")
+            string[] datas = input.Split(' ');
+
+            if(datas[0] == "clear")
             {
                 Console.Clear();
+                write("Done!");
             }
-
-            if(input == "close")
+            else if(datas[0] == "close")
             {
-                live = false;
-            }
-
-            if(input.Contains("list"))
-            {
-                if(input.Contains("sockets"))
+                if (datas[1] == "server")
                 {
-                    int j = 0;
+                    live = false;
+                    main_thread.Abort();
+                    foreach(var th in sassion_threads)
+                    {
+                        th.Join();
+                    }
+                    write("Done!");
+                }
+                else if(datas[1] == "sassion")
+                {
+                    Sassion.sassions[datas[3]].live = false;
+                    write("Done!");
+                }
+            }
+            else if(datas[0] == "list")
+            {
+                foreach(var sassion in Sassion.sassions)
+                {
+                    write("[" + sassion.Key + "] -- " + sassion.Value.name);
+                }
+            }
+            else if (datas[0] == "shutdown")
+            {
+                main_thread.Abort();
+                foreach (var th in sassion_threads)
+                {
+                    th.Abort();
+                }
+                live = false;
+                write("Done!");
+            }
+            else if (datas[0] == "save")
+            {
+                if (datas[1] == "log")
+                {
+                    write(Sassion.sassions[datas[3]].getLog());
                 }
             }
         }
-        main_thread.Join();
 
         Console.WriteLine("\nPress ENTER to continue...");
         Console.Read();
@@ -77,12 +115,11 @@ public class Server
 
             while (live)
             {
-                Sassion aktual_sassion = new Sassion(false, listener.Accept());
-                sassion_list.Add(aktual_sassion);
+                Socket _socket = listener.Accept();
                 Thread aktual_thread = new Thread(sassionThread);
-                aktual_thread.Start(aktual_sassion);
+                sassion_threads.Add(aktual_thread);
+                aktual_thread.Start(_socket);
             }
-
         }
         catch (Exception e)
         {
@@ -92,34 +129,52 @@ public class Server
 
     public void sassionThread(Object obj)
     {
-        Sassion aktual_sassion = (Sassion)obj;
+        Socket workSocket = (Socket)obj;
+        workSocket.ReceiveTimeout = Sassion.session_timout;
+        string? aktual_sassion = null;
+        byte[] buffer = new byte[Sassion.BufferSize];
+        StringBuilder sb = new StringBuilder();
 
-        while(aktual_sassion.workSocket.Connected && aktual_sassion.live)
+        do
         {
             try
             {
-                int bytes_read = aktual_sassion.workSocket.Receive(aktual_sassion.buffer, 0, Sassion.BufferSize, 0);
+                int bytes_read = workSocket.Receive(buffer, 0, Sassion.BufferSize, 0);
 
                 if (bytes_read > 0)
                 {
-                    aktual_sassion.sb.Append(Encoding.UTF8.GetString(aktual_sassion.buffer, 0, bytes_read));
-                    String receive_content = aktual_sassion.sb.ToString();
-                    aktual_sassion.write("Read " + bytes_read + " bytes from client: " + receive_content);
+                    sb.Append(Encoding.UTF8.GetString(buffer, 0, bytes_read));
+                    String receive_content = sb.ToString();
+                    if (aktual_sassion == null)
+                    {
+                        aktual_sassion = Sassion.createOrGetSassion(receive_content);
+                    }
+                    Sassion.sassions[aktual_sassion].log("Read " + bytes_read + " bytes from client: " + receive_content);
+#if MY_DEBUG
+                    Sassion.sassions[aktual_sassion].write("Read " + bytes_read + " bytes from client: " + receive_content);
+#else
+                    Sassion.sassions[aktual_sassion].write("Read " + bytes_read + " bytes from client");
+#endif
 
-                    String send_content = aktual_sassion.solve(receive_content);
+                    String send_content = Sassion.sassions[aktual_sassion].solve(receive_content);
                     byte[] send_bytes = Encoding.UTF8.GetBytes(send_content + "\n");
-                    int bytes_send = aktual_sassion.workSocket.Send(send_bytes);
-                    aktual_sassion.write("Send " + bytes_send + " bytes to client: " + send_content);
-                    aktual_sassion.sb.Clear();
+                    int bytes_send = workSocket.Send(send_bytes);
+                    Sassion.sassions[aktual_sassion].log("Send " + bytes_send + " bytes to client: " + send_content);
+#if MY_DEBUG
+                    Sassion.sassions[aktual_sassion].write("Send " + bytes_send + " bytes to client: " + send_content);
+#else
+                    Sassion.sassions[aktual_sassion].write("Send " + bytes_send + " bytes to client");
+#endif
+                    sb.Clear();
                 }
             }
             catch (System.Net.Sockets.SocketException ex)
             {
                 if (ex.ErrorCode == 10054)
                 {
-                    aktual_sassion.workSocket.Shutdown(SocketShutdown.Both);
-                    aktual_sassion.workSocket.Close();
-                    aktual_sassion.live = false;
+                    workSocket.Shutdown(SocketShutdown.Both);
+                    workSocket.Close();
+                    Sassion.sassions[aktual_sassion].live = false;
                     return;
                 }
 
@@ -129,8 +184,8 @@ public class Server
             {
                 Console.WriteLine(ex.ToString());
             }
-        }
-        Sassion.sassionStopd(aktual_sassion);
+
+        } while (workSocket.Connected && Sassion.sassions[aktual_sassion].live);
     }
 }
 
@@ -142,4 +197,5 @@ public class Program
         server.startListening();
         return 0;
     }
+
 }

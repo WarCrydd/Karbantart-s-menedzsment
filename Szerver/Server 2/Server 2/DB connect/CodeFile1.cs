@@ -3,6 +3,7 @@
 namespace SQLite_Communication
 {
     public static class BaseDbCommunication
-    { 
+    {
+        
     }
 }
