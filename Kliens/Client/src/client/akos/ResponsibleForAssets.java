@@ -27,13 +27,14 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     private Client client;
     private String [] kategoriak;
     private JSONArray tools;
+    private JSONArray array;
     
     public ResponsibleForAssets(Client c) {
         initComponents();        
         client = c;
         NAME_LABEL.setText(client.getName());
         
-        JSONArray array = client.getCategorys();
+        array = client.getCategorys();
         kategoriak = new String[array.size()];
         for (int i = 0; i < array.size(); i++) {
             JSONObject obj = (JSONObject)array.get(i);
@@ -281,14 +282,17 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     }//GEN-LAST:event_nevFieldActionPerformed
 
     private void EszkozFelvitelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_EszkozFelvitelButtonActionPerformed
+        JSONObject tmp;
         String azonosito = azonositoField.getText().trim(),
-                name = nevField.getText().trim(), 
-                kategoria = CATEGORY_COMBOBOX2.getSelectedItem().toString().trim(),
-                elhelyezkedes = elhelyezkedesField.getText().trim(),
-                leiras = leirasField.getText().trim();
+        name = nevField.getText().trim(),
+        kategoria = CATEGORY_COMBOBOX2.getSelectedItem().toString().trim();
+        tmp = (JSONObject)array.get(CATEGORY_COMBOBOX2.getSelectedIndex());
+        int id = Integer.parseInt(tmp.get("id").toString());
+        String elhelyezkedes = elhelyezkedesField.getText().trim(),
+        leiras = leirasField.getText().trim();
         if(name.isEmpty() || kategoria.isEmpty() || elhelyezkedes.isEmpty() || leiras.isEmpty()){
             JOptionPane.showMessageDialog(this, "Minden mező kitöltése kötelező", "Hiba", JOptionPane.WARNING_MESSAGE);
-        }else if (client.addItem(azonosito, name, kategoria, elhelyezkedes, leiras)){
+        }else if (client.addItem(azonosito, name, id, elhelyezkedes, leiras)){
             //majd táblázat frissítése
             azonositoField.setText("");
             nevField.setText("");

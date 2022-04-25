@@ -136,13 +136,13 @@ public class Client {
         return state;
     }
     
-    public boolean addItem(String id, String name, String category, String location, String description) {
+    public boolean addItem(String id, String name, int category, String location, String description) {
         JSONObject obj = new JSONObject();
         obj.put("code", 6);
         obj.put("hash", hash);
         obj.put("azonosito", id);        
-        obj.put("nev", name);
-        obj.put("kategoria", category);
+        obj.put("name", name);
+        obj.put("kategoriaid", category);
         obj.put("elhelyezkedes", location);
         obj.put("leiras", description);
         
