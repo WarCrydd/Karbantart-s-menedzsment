@@ -22,6 +22,7 @@ public class Karbantarto extends javax.swing.JFrame {
 
     private Client client;
     private List<JSONObject> karbanTartasok = new ArrayList();
+    private String feladatLeiras = "";
     
     public Karbantarto(Client c) {
         initComponents();
@@ -148,7 +149,7 @@ public class Karbantarto extends javax.swing.JFrame {
         helyszin.setText("Nincsen aktív feladat");
 
         kesz.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        kesz.setText("Készen van");
+        kesz.setText("Kezdés");
         kesz.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 keszActionPerformed(evt);
@@ -156,7 +157,7 @@ public class Karbantarto extends javax.swing.JFrame {
         });
 
         nincsKesz.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        nincsKesz.setText("Nincs készen");
+        nincsKesz.setText("Befejezve");
         nincsKesz.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 nincsKeszActionPerformed(evt);
@@ -172,6 +173,11 @@ public class Karbantarto extends javax.swing.JFrame {
         });
 
         jButton1.setText("Frissítés");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -266,30 +272,39 @@ public class Karbantarto extends javax.swing.JFrame {
 
     private void elfogadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_elfogadActionPerformed
         JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
-        obj.remove("elfogadasAllapota");
-        obj.put("elfogadasAllapota", "Elfogadva");
-        karbanTartasok.remove(napiFeladatok.getSelectedRow());
-        karbanTartasok.add(obj);
-        napiFeladatok.setValueAt("Elfogadva", napiFeladatok.getSelectedRow(), 3);
-        tablazatGeneralo(karbanTartasok);
-        boolean vanElfogadott = false;
-        int elfogadottIdx = -1;
-        for (int i = 0; i < karbanTartasok.size(); i++) {
-            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
-            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
-                vanElfogadott = true;
-                if(elfogadottIdx == -1){
-                    elfogadottIdx = i;
-                    break;
+        int state = client.acceptRepair(Integer.parseInt(obj.get("id").toString()));
+        if(state == 0){
+            obj.remove("elfogadasAllapota");
+            obj.put("elfogadasAllapota", "Elfogadva");
+            karbanTartasok.remove(napiFeladatok.getSelectedRow());
+            karbanTartasok.add(obj);
+            napiFeladatok.setValueAt("Elfogadva", napiFeladatok.getSelectedRow(), 3);
+            client.acceptRepair(Integer.parseInt(obj.get("id").toString()));
+            tablazatGeneralo(karbanTartasok);
+            boolean vanElfogadott = false;
+            int elfogadottIdx = -1;
+            for (int i = 0; i < karbanTartasok.size(); i++) {
+                JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+                if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && (tmp.get("feladatAllapota").toString().equals("nincs kész") || tmp.get("feladatAllapota").toString().equals("megkezdve"))){
+                    vanElfogadott = true;
+                    if(elfogadottIdx == -1){
+                        elfogadottIdx = i;
+                        break;
+                    }
                 }
             }
+            if(vanElfogadott == true){
+                JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
+                helyszin.setText(tmp.get("helyszin").toString());
+            }else{
+                helyszin.setText("Nincsen aktív feladat");
+            }
+            elfogad.setEnabled(false);
+            elutasit.setEnabled(false);
+            kesz.setEnabled(false);
+            nincsKesz.setEnabled(false);
         }
-        if(vanElfogadott == true){
-            JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
-            helyszin.setText(tmp.get("helyszin").toString());
-        }else{
-            helyszin.setText("Nincsen aktív feladat");
-        }
+        
     }//GEN-LAST:event_elfogadActionPerformed
 
     private void napiFeladatokMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_napiFeladatokMouseClicked
@@ -303,45 +318,56 @@ public class Karbantarto extends javax.swing.JFrame {
 
     private void elutasitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_elutasitActionPerformed
         JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
-        obj.remove("elfogadasAllapota");
-        obj.put("elfogadasAllapota", "nincs elfogadva");
-        karbanTartasok.remove(napiFeladatok.getSelectedRow());
-        karbanTartasok.add(obj);
-        napiFeladatok.setValueAt("nincs elfogadva", napiFeladatok.getSelectedRow(), 3);
-        tablazatGeneralo(karbanTartasok);
-        boolean vanElfogadott = false;
-        int elfogadottIdx = -1;
-        for (int i = 0; i < karbanTartasok.size(); i++) {
-            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
-            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
-                vanElfogadott = true;
-                if(elfogadottIdx == -1){
-                    elfogadottIdx = i;
-                    break;
+        int state = client.rejectRepair(Integer.parseInt(obj.get("id").toString()));
+        if(state == 0){
+            obj.remove("elfogadasAllapota");
+            obj.put("elfogadasAllapota", "nincs elfogadva");
+            karbanTartasok.remove(napiFeladatok.getSelectedRow());
+            karbanTartasok.add(obj);
+            napiFeladatok.setValueAt("nincs elfogadva", napiFeladatok.getSelectedRow(), 3);
+
+            tablazatGeneralo(karbanTartasok);
+            boolean vanElfogadott = false;
+            int elfogadottIdx = -1;
+            for (int i = 0; i < karbanTartasok.size(); i++) {
+                JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+                if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && (tmp.get("feladatAllapota").toString().equals("nincs kész") || tmp.get("feladatAllapota").toString().equals("megkezdve"))){
+                    vanElfogadott = true;
+                    if(elfogadottIdx == -1){
+                        elfogadottIdx = i;
+                        break;
+                    }
                 }
             }
+            if(vanElfogadott == true){
+                JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
+                helyszin.setText(tmp.get("helyszin").toString());
+            }else{
+                helyszin.setText("Nincsen aktív feladat");
+            }
+            elfogad.setEnabled(false);
+            elutasit.setEnabled(false);
+            kesz.setEnabled(false);
+            nincsKesz.setEnabled(false);
         }
-        if(vanElfogadott == true){
-            JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
-            helyszin.setText(tmp.get("helyszin").toString());
-        }else{
-            helyszin.setText("Nincsen aktív feladat");
-        }
+        
     }//GEN-LAST:event_elutasitActionPerformed
 
     private void keszActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_keszActionPerformed
         JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
         obj.remove("feladatAllapota");
-        obj.put("feladatAllapota", "kész van");
+        obj.put("feladatAllapota", "megkezdve");
         karbanTartasok.remove(napiFeladatok.getSelectedRow());
         karbanTartasok.add(obj);
         napiFeladatok.setValueAt("Kész", napiFeladatok.getSelectedRow(), 4);
+        JSONObject kezdes = (JSONObject)client.startRepair(Integer.parseInt(obj.get("id").toString()));
+        feladatLeiras = kezdes.get("leiras").toString();
         tablazatGeneralo(karbanTartasok);
         boolean vanElfogadott = false;
         int elfogadottIdx = -1;
         for (int i = 0; i < karbanTartasok.size(); i++) {
             JSONObject tmp = (JSONObject)karbanTartasok.get(i);
-            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
+            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && (tmp.get("feladatAllapota").toString().equals("nincs kész") || tmp.get("feladatAllapota").toString().equals("megkezdve"))){
                 vanElfogadott = true;
                 if(elfogadottIdx == -1){
                     elfogadottIdx = i;
@@ -354,38 +380,59 @@ public class Karbantarto extends javax.swing.JFrame {
         }else{
             helyszin.setText("Nincsen aktív feladat");
         }
+        elfogad.setEnabled(false);
+        elutasit.setEnabled(false);
+        kesz.setEnabled(false);
+        nincsKesz.setEnabled(false);
+        
     }//GEN-LAST:event_keszActionPerformed
 
     private void nincsKeszActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nincsKeszActionPerformed
         JSONObject obj = (JSONObject)karbanTartasok.get(napiFeladatok.getSelectedRow());
-        obj.remove("feladatAllapota");
-        obj.put("feladatAllapota", "nincs kész");
-        karbanTartasok.remove(napiFeladatok.getSelectedRow());
-        karbanTartasok.add(obj);
-        napiFeladatok.setValueAt("Nincs kész", napiFeladatok.getSelectedRow(), 4);
-        tablazatGeneralo(karbanTartasok);
-        boolean vanElfogadott = false;
-        int elfogadottIdx = -1;
-        for (int i = 0; i < karbanTartasok.size(); i++) {
-            JSONObject tmp = (JSONObject)karbanTartasok.get(i);
-            if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && tmp.get("feladatAllapota").toString().equals("nincs kész")){
-                vanElfogadott = true;
-                if(elfogadottIdx == -1){
-                    elfogadottIdx = i;
+        int state = client.finishRepair(Integer.parseInt(obj.get("id").toString()));
+        if(state == 0){
+            obj.remove("feladatAllapota");
+            obj.put("feladatAllapota", "befejezve");
+            karbanTartasok.remove(napiFeladatok.getSelectedRow());
+            karbanTartasok.add(obj);
+            napiFeladatok.setValueAt("Nincs kész", napiFeladatok.getSelectedRow(), 4);
+            tablazatGeneralo(karbanTartasok);
+            boolean vanElfogadott = false;
+            int elfogadottIdx = -1;
+            for (int i = 0; i < karbanTartasok.size(); i++) {
+                JSONObject tmp = (JSONObject)karbanTartasok.get(i);
+                if(tmp.get("elfogadasAllapota").toString().equals("Elfogadva") && (tmp.get("feladatAllapota").toString().equals("nincs kész") || tmp.get("feladatAllapota").toString().equals("megkezdve"))){
+                    vanElfogadott = true;
+                    if(elfogadottIdx == -1){
+                        elfogadottIdx = i;
+                    }
                 }
             }
+            if(vanElfogadott == true){
+                JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
+                helyszin.setText(tmp.get("helyszin").toString());
+            }else{
+                helyszin.setText("Nincsen aktív feladat");
+            }
+            elfogad.setEnabled(false);
+            elutasit.setEnabled(false);
+            kesz.setEnabled(false);
+            nincsKesz.setEnabled(false);
+            feladatLeiras = "";
         }
-        if(vanElfogadott == true){
-            JSONObject tmp = (JSONObject)karbanTartasok.get(elfogadottIdx);
-            helyszin.setText(tmp.get("helyszin").toString());
-        }else{
-            helyszin.setText("Nincsen aktív feladat");
-        }
+        
     }//GEN-LAST:event_nincsKeszActionPerformed
 
     private void lepesekActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lepesekActionPerformed
-        JOptionPane.showMessageDialog(rootPane, "ide jönnek az utasítások\nna meg ide", "Lépések", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(rootPane, feladatLeiras, "Lépések", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_lepesekActionPerformed
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        JSONArray obj = client.getTODoList();
+        karbanTartasok.clear();
+        listaFeltolt(obj);
+        tablazatGeneralo(karbanTartasok);
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

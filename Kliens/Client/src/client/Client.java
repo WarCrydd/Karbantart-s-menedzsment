@@ -255,6 +255,52 @@ public class Client {
         return ret;
     }
     
+    public int acceptRepair(int karbantartasId){
+        JSONObject obj = new JSONObject();
+        obj.put("id", karbantartasId);
+        obj.put("hash", hash);
+        obj.put("code", 16);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        System.out.println(state);
+        return Integer.parseInt(obj.get("state").toString());
+    }
+    
+    public int rejectRepair(int karbantartasId){
+        JSONObject obj = new JSONObject();
+        obj.put("id", karbantartasId);
+        obj.put("hash", hash);
+        obj.put("code", 17);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        System.out.println(state);
+        return Integer.parseInt(obj.get("state").toString());
+    }
+    
+    public JSONObject startRepair(int karbantartasId){
+        JSONObject obj = new JSONObject();
+        obj.put("id", karbantartasId);
+        obj.put("hash", hash);
+        obj.put("code", 18);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            obj = (JSONObject)obj.get("leiras");                  
+        }
+        return obj;
+    }
+    
+    public int finishRepair(int karbantartasId){
+        JSONObject obj = new JSONObject();
+        obj.put("id", karbantartasId);
+        obj.put("hash", hash);
+        obj.put("code", 19);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        System.out.println(state);
+        return Integer.parseInt(obj.get("state").toString());
+    }
+    
     public void LogOut() {
         JSONObject obj = new JSONObject();
         obj.put("code", 2);
