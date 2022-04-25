@@ -18,14 +18,16 @@
 *.zip
 *.tar.gz
 *.rar
+Szerver/Szerver 2/Szerver 2/bin/
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-
+*.vs/
+*obj/
+*/obj/
 /build
 /out
 /Kliens/Client/dist/
-/Kliens/Client/target/
+*bin/
+*/bin/
 /Kliens/Client/nbproject/
-
-*/obj
