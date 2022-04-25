@@ -4,18 +4,61 @@
  */
 package client.balazs;
 
+import client.Client;
+import java.util.ArrayList;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JOptionPane;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+
 /**
  *
  * @author balazs
  */
 public class SchoolToUser extends javax.swing.JDialog {
 
-    /**
-     * Creates new form SchoolToUser
-     */
-    public SchoolToUser(java.awt.Frame parent, boolean modal) {
+    private Client client;
+    private String username;
+    private ArrayList<String> schools;
+    
+    public SchoolToUser(java.awt.Frame parent, boolean modal, Client c, String uname) {
         super(parent, modal);
         initComponents();
+        usernameLabel.setText(uname); 
+        client=c; username=uname;
+        feltolt();
+    }
+    
+    private void feltolt(){
+        vegzettsegekComboBox.removeAll();
+        schools=new ArrayList<>(); schools.clear();
+        JSONArray array = client.getAllSchool();
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject obj = (JSONObject)array.get(i);
+            schools.add( obj.get("name").toString() );
+        }
+        array = client.getUserSchools(username);
+        if(!array.isEmpty()){
+            String[] userschools = new String[array.size()];
+            if(userschools.length == array.size()) {
+                JOptionPane.showMessageDialog(null, "A felhasználó rendelkezik az elérhető összes végzettséggel!");
+                schools.clear();
+            }
+            else{
+                for (int i = 0; i < array.size(); i++) {
+                    JSONObject obj = (JSONObject)array.get(i);
+                    userschools[i] = obj.get("name").toString();
+                }
+                for (String school : userschools) {
+                    if(schools.contains(school)){
+                        schools.remove(school);
+                    }
+                }
+            }
+        }
+        vegzettsegekComboBox.setModel(new DefaultComboBoxModel<>(schools.toArray(String[]::new)));  
+        vegzettsegekComboBox.updateUI();
+        
     }
 
     /**
@@ -30,7 +73,7 @@ public class SchoolToUser extends javax.swing.JDialog {
         usernameLabel = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        vegzettsegekComboBox = new javax.swing.JComboBox<>();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
 
@@ -45,8 +88,18 @@ public class SchoolToUser extends javax.swing.JDialog {
         jLabel1.setText("Végzettség kiválasztása:");
 
         jButton1.setText("Hozzáad");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         jButton2.setText("Mégsem");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -70,7 +123,7 @@ public class SchoolToUser extends javax.swing.JDialog {
                                 .addComponent(jButton1)
                                 .addGap(29, 29, 29)))
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(vegzettsegekComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 168, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jButton2))))
                 .addContainerGap(45, Short.MAX_VALUE))
         );
@@ -84,7 +137,7 @@ public class SchoolToUser extends javax.swing.JDialog {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(vegzettsegekComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
@@ -95,6 +148,19 @@ public class SchoolToUser extends javax.swing.JDialog {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        String selected=vegzettsegekComboBox.getSelectedItem().toString();
+        boolean addSchoolToUser = client.addSchoolToUser(username, selected);
+        if(!addSchoolToUser) JOptionPane.showMessageDialog(null, "Sikertelen hozzárendelés!");
+        else JOptionPane.showMessageDialog(null, "Sikeres hozzárendelés!");
+        feltolt();
+       
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        dispose();
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -126,7 +192,7 @@ public class SchoolToUser extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                SchoolToUser dialog = new SchoolToUser(new javax.swing.JFrame(), true);
+                SchoolToUser dialog = new SchoolToUser(new javax.swing.JFrame(), true, null, null);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -141,9 +207,9 @@ public class SchoolToUser extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel usernameLabel;
+    private javax.swing.JComboBox<String> vegzettsegekComboBox;
     // End of variables declaration//GEN-END:variables
 }

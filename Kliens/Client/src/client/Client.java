@@ -13,7 +13,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -93,6 +92,20 @@ public class Client {
         return ret;
         
     }
+    public JSONArray getUserSchools(String username){
+        JSONObject obj = new JSONObject();
+        JSONArray ret = null;
+        obj.put("code", 22);
+        obj.put("hash", hash);
+        obj.put("username", username);
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        if (state) {
+            ret = (JSONArray)obj.get("kepesites");
+        }
+        System.out.println(ret);
+        return ret;
+    }
     
     public boolean SignIn(String username, char[] password) {        
         JSONObject obj = new JSONObject();
@@ -130,6 +143,18 @@ public class Client {
         obj.put("username", username);
         obj.put("password", encrypt(password));
         obj.put("role", role);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        return state;
+    }
+    
+    public boolean addSchoolToUser(String username, String name) {
+        JSONObject obj = new JSONObject();
+        obj.put("hash", hash);
+        obj.put("code", 20);
+        obj.put("name", name);
+        obj.put("username", username);
         
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
