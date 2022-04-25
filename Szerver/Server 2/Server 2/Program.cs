@@ -130,7 +130,7 @@ public class Server
     public void sassionThread(Object obj)
     {
         Socket workSocket = (Socket)obj;
-        workSocket.ReceiveTimeout = Sassion.session_timout;
+        workSocket.ReceiveTimeout = Sassion.session_timout+1000;
         string? aktual_sassion = null;
         byte[] buffer = new byte[Sassion.BufferSize];
         StringBuilder sb = new StringBuilder();
@@ -139,7 +139,15 @@ public class Server
         {
             try
             {
-                int bytes_read = workSocket.Receive(buffer, 0, Sassion.BufferSize, 0);
+                int bytes_read = 0;
+                if (workSocket.Poll(Sassion.session_timout, SelectMode.SelectRead))
+                {
+                    bytes_read = workSocket.Receive(buffer, 0, Sassion.BufferSize, 0);
+                }
+                else
+                {
+                    return;
+                }
 
                 if (bytes_read > 0)
                 {
@@ -150,21 +158,13 @@ public class Server
                         aktual_sassion = Sassion.createOrGetSassion(receive_content);
                     }
                     Sassion.sassions[aktual_sassion].log("Read " + bytes_read + " bytes from client: " + receive_content);
-#if MY_DEBUG
-                    Sassion.sassions[aktual_sassion].write("Read " + bytes_read + " bytes from client: " + receive_content);
-#else
                     Sassion.sassions[aktual_sassion].write("Read " + bytes_read + " bytes from client");
-#endif
 
                     String send_content = Sassion.sassions[aktual_sassion].solve(receive_content);
                     byte[] send_bytes = Encoding.UTF8.GetBytes(send_content + "\n");
                     int bytes_send = workSocket.Send(send_bytes);
                     Sassion.sassions[aktual_sassion].log("Send " + bytes_send + " bytes to client: " + send_content);
-#if MY_DEBUG
-                    Sassion.sassions[aktual_sassion].write("Send " + bytes_send + " bytes to client: " + send_content);
-#else
                     Sassion.sassions[aktual_sassion].write("Send " + bytes_send + " bytes to client");
-#endif
                     sb.Clear();
                 }
             }
