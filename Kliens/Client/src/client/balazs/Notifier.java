@@ -147,6 +147,7 @@ public class Notifier extends javax.swing.JFrame {
             }
         });
         eszkozTable.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_NEXT_COLUMN);
+        eszkozTable.setColumnSelectionAllowed(true);
         eszkozTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         eszkozTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(eszkozTable);

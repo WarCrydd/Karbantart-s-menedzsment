@@ -20,9 +20,9 @@ import javax.swing.JOptionPane;
  */
 public class SignIn extends javax.swing.JFrame {
 
-    /**
-     * Creates new form SignIn
-     */
+    private static final String IP = "25.54.161.46";
+    private static final int PORT = 8888;
+        
     public SignIn() {
         initComponents();
         this.addWindowListener(new WindowAdapter() {
@@ -137,7 +137,7 @@ public class SignIn extends javax.swing.JFrame {
     private void SignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignInActionPerformed
         final String username = USERNAME.getText();
         final char [] password = PASSWORD.getPassword();
-        
+        client=new Client(IP, PORT);
         if (client.SignIn(username, password)){
             switch (client.getRole()){
                 case "admin" -> new Admin(client).setVisible(true);
@@ -184,10 +184,8 @@ public class SignIn extends javax.swing.JFrame {
         }
         //</editor-fold>     
         
-        final String IP = "25.54.161.46";
-        final int PORT = 8888;
-        
-        client = new Client(IP, PORT);
+       
+        //client = new Client(IP, PORT);
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

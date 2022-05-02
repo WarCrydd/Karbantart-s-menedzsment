@@ -7,6 +7,9 @@ package client.balazs;
 
 import client.Client;
 import client.akos.SignIn;
+import javax.swing.table.DefaultTableModel;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  *
@@ -15,12 +18,31 @@ import client.akos.SignIn;
 public class Operator extends javax.swing.JFrame {
 
     private Client client;
+    private DefaultTableModel dtm;
     
     public Operator(Client c) {
+        initComponents();
         this.client=c;
         nameLabel.setText(client.getName()); 
-        initComponents();
+        feltolt();
+    }
+    
+    private void feltolt(){
+        JSONArray array = client.getTODoList();
+        dtm=(DefaultTableModel) karbantartasTable.getModel();
         
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject obj = (JSONObject)array.get(i);
+            int sorsz = Integer.parseInt(obj.get("id").toString());
+            int eszkozid = Integer.parseInt(obj.get("eszkoz_id").toString());
+            String nev = obj.get("name").toString();
+            String hely = obj.get("helyszin").toString();
+            String suly = obj.get("sulyossag").toString();
+            String allapot = obj.get("allapot").toString();
+            
+            dtm.addRow(new Object[]{sorsz,eszkozid,nev,hely,suly,allapot});
+        }
+        karbantartasTable.updateUI();
     }
 
     
@@ -40,10 +62,6 @@ public class Operator extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         LogOut = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
-        jLabel4 = new javax.swing.JLabel();
-        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -51,21 +69,20 @@ public class Operator extends javax.swing.JFrame {
         jLabel1.setText("Bejelentkezett operátor:");
 
         nameLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        nameLabel.setText("Név");
 
         karbantartasTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Sorszám", "Eszköz", "Súlyosság", "Állapot"
+                "Sorszám", "Azonosító", "Eszköz", "Elhelyezkedés", "Súlyosság", "Állapot"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class
+                java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false
+                false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -77,6 +94,7 @@ public class Operator extends javax.swing.JFrame {
             }
         });
         karbantartasTable.setColumnSelectionAllowed(true);
+        karbantartasTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         karbantartasTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(karbantartasTable);
         karbantartasTable.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
@@ -85,6 +103,8 @@ public class Operator extends javax.swing.JFrame {
             karbantartasTable.getColumnModel().getColumn(1).setResizable(false);
             karbantartasTable.getColumnModel().getColumn(2).setResizable(false);
             karbantartasTable.getColumnModel().getColumn(3).setResizable(false);
+            karbantartasTable.getColumnModel().getColumn(4).setResizable(false);
+            karbantartasTable.getColumnModel().getColumn(5).setResizable(false);
         }
 
         jLabel3.setText("Rendszerben rögzített hibák:");
@@ -97,23 +117,11 @@ public class Operator extends javax.swing.JFrame {
         });
 
         jButton2.setText("Munka kiosztása");
-
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
             }
-        ));
-        jScrollPane2.setViewportView(jTable2);
-
-        jLabel4.setText("Kiadott javítások:");
-
-        jButton3.setText("Munka visszavonása");
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -122,18 +130,13 @@ public class Operator extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 731, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 156, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 261, Short.MAX_VALUE)
-                        .addComponent(LogOut))
-                    .addComponent(jScrollPane2)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 166, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton3))
+                        .addComponent(LogOut))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -153,17 +156,12 @@ public class Operator extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(jButton3))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(169, 169, 169))
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void LogOutActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_LogOutActionPerformed
@@ -171,6 +169,14 @@ public class Operator extends javax.swing.JFrame {
         new SignIn(client).setVisible(true);       
         dispose();
     }//GEN-LAST:event_LogOutActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        int selectedrow = karbantartasTable.getSelectedRow();
+        int eszkozid = Integer.parseInt(dtm.getValueAt(selectedrow, 0).toString());
+        int sorsz = Integer.parseInt(dtm.getValueAt(selectedrow, 1).toString());
+        boolean success = new JobToMaintenance(this, rootPaneCheckingEnabled, client, eszkozid, sorsz).showDialog();
+        System.out.println(success);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -210,13 +216,9 @@ public class Operator extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton LogOut;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable2;
     private javax.swing.JTable karbantartasTable;
     private javax.swing.JLabel nameLabel;
     // End of variables declaration//GEN-END:variables

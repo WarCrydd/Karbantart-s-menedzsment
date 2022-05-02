@@ -176,7 +176,7 @@ public class Client {
         return state;
     }
     
-    public boolean addCategory(String name, String category, String normaido, String period, String instructions) {
+    public boolean addCategory(String name, String category, Integer normaido, String period, String instructions) {
         JSONObject obj = new JSONObject();
         obj.put("code", 3);
         obj.put("hash", hash);
@@ -205,11 +205,13 @@ public class Client {
         return ret;
     }
     
-    public JSONArray getUsers(){
+    public JSONArray getUsers(int eszkozid, int karbantartasid){
         JSONObject obj = new JSONObject();
         JSONArray ret = null;
         obj.put("hash", hash);
         obj.put("code", 9);
+        obj.put("eszkozid", eszkozid);
+        obj.put("karbantartasid", karbantartasid);
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
         if (state) {

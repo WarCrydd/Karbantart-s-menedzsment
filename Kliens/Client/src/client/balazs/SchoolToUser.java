@@ -40,11 +40,11 @@ public class SchoolToUser extends javax.swing.JDialog {
         array = client.getUserSchools(username);
         if(!array.isEmpty()){
             String[] userschools = new String[array.size()];
-            if(userschools.length == array.size()) {
-                JOptionPane.showMessageDialog(null, "A felhasználó rendelkezik az elérhető összes végzettséggel!");
-                schools.clear();
-            }
-            else{
+            //if(userschools.length == array.size()) {
+            //    JOptionPane.showMessageDialog(null, "A felhasználó rendelkezik az elérhető összes végzettséggel!");
+            //    schools.clear();
+            //}
+            //else{
                 for (int i = 0; i < array.size(); i++) {
                     JSONObject obj = (JSONObject)array.get(i);
                     userschools[i] = obj.get("name").toString();
@@ -54,7 +54,7 @@ public class SchoolToUser extends javax.swing.JDialog {
                         schools.remove(school);
                     }
                 }
-            }
+            //}
         }
         vegzettsegekComboBox.setModel(new DefaultComboBoxModel<>(schools.toArray(String[]::new)));  
         vegzettsegekComboBox.updateUI();
