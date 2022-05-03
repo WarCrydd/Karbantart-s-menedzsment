@@ -28,7 +28,7 @@ public class Karbantarto extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.client = c;
-        JSONArray obj = client.getTODoList();
+        JSONArray obj = client.getTODoList(-1);
         System.out.println(obj.toJSONString());
         listaFeltolt(obj);
         
@@ -428,7 +428,7 @@ public class Karbantarto extends javax.swing.JFrame {
     }//GEN-LAST:event_lepesekActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        JSONArray obj = client.getTODoList();
+        JSONArray obj = client.getTODoList(-1);
         karbanTartasok.clear();
         listaFeltolt(obj);
         tablazatGeneralo(karbanTartasok);

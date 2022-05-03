@@ -7,6 +7,7 @@ package client.balazs;
 
 import client.Client;
 import client.akos.SignIn;
+import java.util.HashMap;
 import javax.swing.table.DefaultTableModel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -18,19 +19,22 @@ import org.json.simple.JSONObject;
 public class Operator extends javax.swing.JFrame {
 
     private Client client;
-    private DefaultTableModel dtm;
+    private DefaultTableModel dtm, dtm2;
+    
+    private HashMap<String, Integer> karbantartok=new HashMap<>();
     
     public Operator(Client c) {
         initComponents();
         this.client=c;
         nameLabel.setText(client.getName()); 
+        dtm=(DefaultTableModel) karbantartasTable.getModel();
+        dtm2=(DefaultTableModel) egyeniTable.getModel();
         feltolt();
     }
     
     private void feltolt(){
-        JSONArray array = client.getTODoList();
-        dtm=(DefaultTableModel) karbantartasTable.getModel();
-        
+        JSONArray array = client.getTODoList(-1);
+        dtm.setRowCount(0); 
         for (int i = 0; i < array.size(); i++) {
             JSONObject obj = (JSONObject)array.get(i);
             int sorsz = Integer.parseInt(obj.get("id").toString());
@@ -43,6 +47,16 @@ public class Operator extends javax.swing.JFrame {
             dtm.addRow(new Object[]{sorsz,eszkozid,nev,hely,suly,allapot});
         }
         karbantartasTable.updateUI();
+        karbantartok=new HashMap<>();
+        karbantartoComboBox.removeAllItems();
+        array = client.getUsers(-1, -2);
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject obj = (JSONObject)array.get(i);
+            String username = obj.get("username").toString();
+            int id = Integer.parseInt( obj.get("id").toString()) ;
+            karbantartok.put(username, id);
+            karbantartoComboBox.addItem(username);
+        }
     }
 
     
@@ -56,19 +70,22 @@ public class Operator extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        nameLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         karbantartasTable = new javax.swing.JTable();
         jLabel3 = new javax.swing.JLabel();
         LogOut = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
+        updateButton = new javax.swing.JButton();
+        nameLabel = new javax.swing.JLabel();
+        karbantartoComboBox = new javax.swing.JComboBox<>();
+        jScrollPane2 = new javax.swing.JScrollPane();
+        egyeniTable = new javax.swing.JTable();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         jLabel1.setText("Bejelentkezett operátor:");
-
-        nameLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
 
         karbantartasTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -93,7 +110,6 @@ public class Operator extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        karbantartasTable.setColumnSelectionAllowed(true);
         karbantartasTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         karbantartasTable.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(karbantartasTable);
@@ -123,41 +139,119 @@ public class Operator extends javax.swing.JFrame {
             }
         });
 
+        updateButton.setText("Táblázat frissítése");
+        updateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                updateButtonActionPerformed(evt);
+            }
+        });
+
+        nameLabel.setFont(new java.awt.Font("Segoe UI", 0, 18)); // NOI18N
+        nameLabel.setText("jLabel2");
+
+        karbantartoComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                karbantartoComboBoxActionPerformed(evt);
+            }
+        });
+
+        egyeniTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Sorszám", "Azonosító", "Eszköz", "Elhelyezkedés", "Állapot", "Időpont"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        egyeniTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane2.setViewportView(egyeniTable);
+        if (egyeniTable.getColumnModel().getColumnCount() > 0) {
+            egyeniTable.getColumnModel().getColumn(0).setResizable(false);
+            egyeniTable.getColumnModel().getColumn(1).setResizable(false);
+            egyeniTable.getColumnModel().getColumn(2).setResizable(false);
+            egyeniTable.getColumnModel().getColumn(3).setResizable(false);
+            egyeniTable.getColumnModel().getColumn(4).setResizable(false);
+            egyeniTable.getColumnModel().getColumn(5).setResizable(false);
+        }
+
+        jLabel2.setText("Kiválasztott karbantartó feladatainak listázása:");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 731, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 282, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(LogOut))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(layout.createSequentialGroup()
+                                .addContainerGap()
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 717, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(14, 14, 14)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(updateButton)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addComponent(jButton2))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(nameLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 245, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(LogOut)
+                                        .addGap(8, 8, 8)))))
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 152, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2)))
+                        .addContainerGap()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 257, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(karbantartoComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, 170, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addComponent(jScrollPane2))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 29, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(nameLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(LogOut))
-                .addGap(27, 27, 27)
+                    .addComponent(LogOut)
+                    .addComponent(nameLabel))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(updateButton)
                     .addComponent(jLabel3)
                     .addComponent(jButton2))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 209, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(169, 169, 169))
+                .addGap(24, 24, 24)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(karbantartoComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 183, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(30, Short.MAX_VALUE))
         );
 
         pack();
@@ -175,8 +269,29 @@ public class Operator extends javax.swing.JFrame {
         int eszkozid = Integer.parseInt(dtm.getValueAt(selectedrow, 0).toString());
         int sorsz = Integer.parseInt(dtm.getValueAt(selectedrow, 1).toString());
         boolean success = new JobToMaintenance(this, rootPaneCheckingEnabled, client, eszkozid, sorsz).showDialog();
-        System.out.println(success);
+        if(success) feltolt();
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
+        feltolt();
+    }//GEN-LAST:event_updateButtonActionPerformed
+
+    private void karbantartoComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_karbantartoComboBoxActionPerformed
+        String nev = karbantartoComboBox.getSelectedItem().toString();
+        int id = karbantartok.get(nev);
+        JSONArray array = client.getTODoList(id);
+        dtm2.setRowCount(0); 
+        for (int i = 0; i < array.size(); i++) {
+            JSONObject obj = (JSONObject) array.get(i);
+            int sorsz = Integer.parseInt( obj.get("id").toString() );
+            int azon = Integer.parseInt( obj.get("eszkoz_id").toString() );
+            String name = obj.get("name").toString();
+            String date = obj.get("date").toString();
+            String helyszin = obj.get("helyszin").toString();
+            String allapot = obj.get("allapot").toString();
+            dtm2.addRow(new Object[]{sorsz, azon, name, helyszin, allapot ,date});
+        }
+    }//GEN-LAST:event_karbantartoComboBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -215,11 +330,16 @@ public class Operator extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton LogOut;
+    private javax.swing.JTable egyeniTable;
     private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JTable karbantartasTable;
+    private javax.swing.JComboBox<String> karbantartoComboBox;
     private javax.swing.JLabel nameLabel;
+    private javax.swing.JButton updateButton;
     // End of variables declaration//GEN-END:variables
 }

@@ -161,6 +161,19 @@ public class Client {
         return state;
     }
     
+    public boolean addJobToMaintenance(int karbantartoid, int karbantartasid, int ido) {
+        JSONObject obj = new JSONObject();
+        obj.put("hash", hash);
+        obj.put("code", 15);
+        obj.put("karbantartoid", karbantartoid);
+        obj.put("karbantartasid", karbantartasid);
+        obj.put("ido", ido);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        return state;
+    }
+    
     public boolean addItem(String id, String name, int category, String location, String description) {
         JSONObject obj = new JSONObject();
         obj.put("code", 6);
@@ -269,11 +282,12 @@ public class Client {
         return true;
     }
 
-    public JSONArray getTODoList(){
+    public JSONArray getTODoList(int karbantartoid){
         JSONObject obj = new JSONObject();
         JSONArray ret = null;
         obj.put("code", 10);
         obj.put("hash", hash);
+        obj.put("karbantartoid", karbantartoid);
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
         if (state) {

@@ -135,6 +135,7 @@ public class SignIn extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void SignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_SignInActionPerformed
+        
         final String username = USERNAME.getText();
         final char [] password = PASSWORD.getPassword();
         client=new Client(IP, PORT);
