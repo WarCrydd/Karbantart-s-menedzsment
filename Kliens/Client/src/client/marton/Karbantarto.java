@@ -306,7 +306,7 @@ public class Karbantarto extends javax.swing.JFrame {
             kezdesBtn.setEnabled(false);
             befejezes.setEnabled(false);
         }else{
-            JOptionPane.showMessageDialog(rootPane, "Hiba", "Nem sikerült a feladat elfogadása", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(rootPane, "Nem sikerült a feladat elfogadása", "Hiba", JOptionPane.INFORMATION_MESSAGE);
         }
         
     }//GEN-LAST:event_elfogadActionPerformed
@@ -354,7 +354,7 @@ public class Karbantarto extends javax.swing.JFrame {
             kezdesBtn.setEnabled(false);
             befejezes.setEnabled(false);
         }else{
-            JOptionPane.showMessageDialog(rootPane, "Hiba", "Nem sikerült a feladat elutasítása", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(rootPane, "Nem sikerült a feladat elutasítása", "Hiba", JOptionPane.INFORMATION_MESSAGE);
         }
         
     }//GEN-LAST:event_elutasitActionPerformed
@@ -392,7 +392,7 @@ public class Karbantarto extends javax.swing.JFrame {
             kezdesBtn.setEnabled(false);
             befejezes.setEnabled(false);
         }else{
-            JOptionPane.showMessageDialog(rootPane, "Hiba", "Nem sikerült a feladat megkezdése", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(rootPane, "Nem sikerült a feladat megkezdése", "Hiba", JOptionPane.INFORMATION_MESSAGE);
         }
         
         
@@ -431,7 +431,7 @@ public class Karbantarto extends javax.swing.JFrame {
             befejezes.setEnabled(false);
             feladatLeiras = "";
         }else{
-            JOptionPane.showMessageDialog(rootPane, "Hiba", "Nem sikerült a feladat befejezése", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(rootPane, "Nem sikerült a feladat befejezése", "Hiba", JOptionPane.INFORMATION_MESSAGE);
         }
         
     }//GEN-LAST:event_befejezesActionPerformed

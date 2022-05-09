@@ -152,7 +152,6 @@ public class SignIn extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Hibás felhasználónév, vagy hibás jelszó!\nHa helyesek az adatok, akkor lehetséges, hogy más is be van jelentkezve a felhasználóval,\n"
                     + "ebben az esetben később próbáld újra.", "Sikertelen bejelentkezés", JOptionPane.WARNING_MESSAGE);
             PASSWORD.setText("");
-            
         }
     }//GEN-LAST:event_SignInActionPerformed
 
