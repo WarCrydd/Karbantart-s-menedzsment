@@ -266,8 +266,8 @@ public class Operator extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         int selectedrow = karbantartasTable.getSelectedRow();
-        int eszkozid = Integer.parseInt(dtm.getValueAt(selectedrow, 0).toString());
-        int sorsz = Integer.parseInt(dtm.getValueAt(selectedrow, 1).toString());
+        int eszkozid = Integer.parseInt(dtm.getValueAt(selectedrow, 1).toString());
+        int sorsz = Integer.parseInt(dtm.getValueAt(selectedrow, 0).toString());
         boolean success = new JobToMaintenance(this, rootPaneCheckingEnabled, client, eszkozid, sorsz).showDialog();
         if(success) feltolt();
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -277,20 +277,23 @@ public class Operator extends javax.swing.JFrame {
     }//GEN-LAST:event_updateButtonActionPerformed
 
     private void karbantartoComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_karbantartoComboBoxActionPerformed
-        String nev = karbantartoComboBox.getSelectedItem().toString();
-        int id = karbantartok.get(nev);
-        JSONArray array = client.getTODoList(id);
-        dtm2.setRowCount(0); 
-        for (int i = 0; i < array.size(); i++) {
-            JSONObject obj = (JSONObject) array.get(i);
-            int sorsz = Integer.parseInt( obj.get("id").toString() );
-            int azon = Integer.parseInt( obj.get("eszkoz_id").toString() );
-            String name = obj.get("name").toString();
-            String date = obj.get("date").toString();
-            String helyszin = obj.get("helyszin").toString();
-            String allapot = obj.get("allapot").toString();
-            dtm2.addRow(new Object[]{sorsz, azon, name, helyszin, allapot ,date});
+        if(karbantartoComboBox.getSelectedItem() != null){
+            String nev = karbantartoComboBox.getSelectedItem().toString();
+            int id = karbantartok.get(nev);
+            JSONArray array = client.getTODoList(id);
+            dtm2.setRowCount(0); 
+            for (int i = 0; i < array.size(); i++) {
+                JSONObject obj = (JSONObject) array.get(i);
+                int sorsz = Integer.parseInt( obj.get("id").toString() );
+                int azon = Integer.parseInt( obj.get("eszkoz_id").toString() );
+                String name = obj.get("name").toString();
+                String date = obj.get("date").toString();
+                String helyszin = obj.get("helyszin").toString();
+                String allapot = obj.get("allapot").toString();
+                dtm2.addRow(new Object[]{sorsz, azon, name, helyszin, allapot ,date});
+            }
         }
+        
     }//GEN-LAST:event_karbantartoComboBoxActionPerformed
 
     /**
