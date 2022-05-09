@@ -292,6 +292,8 @@ public class Client {
         boolean state = (Long) (obj.get("state")) == 0;
         if (state) {
             ret = (JSONArray)obj.get("karbantartas");                  
+        }else{
+            return null;
         }
         return ret;
     }
@@ -318,7 +320,8 @@ public class Client {
         return Integer.parseInt(obj.get("state").toString());
     }
     
-    public JSONObject startRepair(int karbantartasId){
+    public String startRepair(int karbantartasId){
+        String leiras = "";
         JSONObject obj = new JSONObject();
         obj.put("id", karbantartasId);
         obj.put("hash", hash);
@@ -326,9 +329,11 @@ public class Client {
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
         if (state) {
-            obj = (JSONObject)obj.get("leiras");                  
+            leiras = obj.get("leiras").toString();                  
+        }else{
+            return null;
         }
-        return obj;
+        return leiras;
     }
     
     public int finishRepair(int karbantartasId){
