@@ -10,6 +10,7 @@ namespace Server_2.Sassions
 {
     internal class SassionForOperator : Sassion
     {
+        Dictionary<Int64?, JsonFelhasznalo?>? felhasznaloList;
         public SassionForOperator(string _hash) : base(_hash)
         {
         }
@@ -59,7 +60,34 @@ namespace Server_2.Sassions
                             break;
 
                         case 9:
-                            response = JsonSerializer.Serialize<JsonCommunicationResponse>(listFelhasznalo(js), options);
+                            JsonCommunicationResponse jsr = listFelhasznalo(js);
+                            response = JsonSerializer.Serialize<JsonCommunicationResponse>(jsr, options);
+                            int i = 0;
+                            felhasznaloList = new Dictionary<long?, JsonFelhasznalo?>();
+                            foreach(var item in jsr.felhasznalo)
+                            {
+                                long? id = item.id;
+                                string? name = item.name;
+                                string? role = item.role;
+                                long? munkaorakszama = item.munkaorakszama;
+                                long? kepesites_id = item.kepesites_id;
+                                List<long>? szabadorak = item.szabadorak;
+                                string? username = item.username;
+                                string? password = item.password;
+
+                                JsonFelhasznalo f = new JsonFelhasznalo
+                                {
+                                    id = id ?? 0,
+                                    name = name ?? "",
+                                    role = role ?? "",
+                                    munkaorakszama = munkaorakszama ?? 0,
+                                    szabadorak = szabadorak ?? new List<Int64>(),
+                                    username = username ?? ""
+                                };
+
+                                felhasznaloList.Add(id, f) ;
+                                i++;
+                            }
                             break;
 
                         case 10:
@@ -80,6 +108,18 @@ namespace Server_2.Sassions
 
                         case 14:
                             response = JsonSerializer.Serialize<JsonCommunicationResponse>(ujKarbantartas(js), options);
+                            break;
+
+                        case 15:
+                            Int64 a = getNormaidoByKategoriaID(getKategoriaIdByEszkozID((long)getKarbantartasByID((long)js.karbantartasid).eszkoz_id));
+                            Int64 b = (24 - felhasznaloList[js.karbantartoid].szabadorak.Count());
+                            Int64 c = (long)felhasznaloList[js.karbantartoid].munkaorakszama;
+                            if (a + b > c)
+                            {
+                                response = "{\"state\":2}";
+                                break;
+                            }
+                            response = JsonSerializer.Serialize<JsonCommunicationResponse>(karbantartoKarbantartashozRendeles(js), options);
                             break;
 
                         case 20:

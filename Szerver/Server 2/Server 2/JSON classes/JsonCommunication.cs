@@ -11,7 +11,9 @@ namespace Json_Classes
         public string? school { get; set; }
         public string? role { get; set; }
         public Int64? parent { get; set; }
+        public Int64? karbantartasid { get; set; }
         public Int64? normaido { get; set; }
+        public Int64? ido { get; set; }
         public string? karbperiod { get; set; }
         public string? description { get; set; }
         public string? leiras { get; set; }
@@ -35,6 +37,7 @@ namespace Json_Classes
         public Int64? state { get; set; }
         public string? name { get; set; }
         public string? role { get; set; }
+        public string? leiras { get; set; }
         public List<JsonKategoria>? kategoria { get; set; }
         public List<JsonEszkoz>? eszkoz { get; set; }
         public List<JsonFelhasznalo>? felhasznalo { get; set; }
@@ -74,17 +77,20 @@ namespace Json_Classes
         public string? password { get; set; }
         public Int64? kepesites_id { get; set; }
         public Int64? munkaorakszama { get; set; }
+        public List<Int64>? szabadorak { get; set; }
     }
 
     public class JsonKarbantartas
     {
         public Int64? id { get; set; }
         public Int64? eszkoz_id { get; set; }
+        public String? allapot { get; set; }
         public string? name { get; set; }
         public string? sulyossag { get; set; }
         public string? helyszin { get; set; }
         public DateTime? date { get; set; }
         public string? leiras { get; set; }
+        public Int64? karbantartoid { get; set; }
     }
 
     public class JsonKepesites

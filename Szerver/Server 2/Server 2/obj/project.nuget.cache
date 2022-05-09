@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OyqsEbK43dgQtoAW9F5FVfV5Oh/9Qc0fbElkTzGTQE/1rDSB1wOe14VskiomQQ4ZIWAl8kWtwA8jMvYOa14odQ==",
+  "dgSpecHash": "2p7tl5EK33o3b87ng5mQJjRyT/vZiVB5jQlN47JCVNmqllUoUWKxCW43DSwwVpihfF1f4LUdpNY/OofqzHkTDQ==",
   "success": true,
-  "projectFilePath": "C:\\Projektek\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
+  "projectFilePath": "C:\\Projektek\\client\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\varga\\.nuget\\packages\\microsoft.data.sqlite\\6.0.3\\microsoft.data.sqlite.6.0.3.nupkg.sha512",
     "C:\\Users\\varga\\.nuget\\packages\\microsoft.data.sqlite.core\\6.0.3\\microsoft.data.sqlite.core.6.0.3.nupkg.sha512",

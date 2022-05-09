@@ -1,4 +1,4 @@
-#define MY_DEBUG
+//#define MYDEBUG
 
 using System;
 using System.Net;
@@ -48,6 +48,7 @@ public class Server
         main_thread.Start();
 
         while (live)
+
         {
             string input = Console.ReadLine();
 
@@ -97,7 +98,7 @@ public class Server
             {
                 if (datas[1] == "log")
                 {
-                    write(Sassion.sassions[datas[3]].getLog());
+                    saveLog();
                 }
             }
         }
@@ -146,6 +147,10 @@ public class Server
                 }
                 else
                 {
+                    if(aktual_sassion != null)
+                    {
+                        break;
+                    }
                     return;
                 }
 
@@ -156,6 +161,13 @@ public class Server
                     if (aktual_sassion == null)
                     {
                         aktual_sassion = Sassion.createOrGetSassion(receive_content);
+                    }
+
+                    if(aktual_sassion == null)
+                    {
+                        byte[] _send_bytes = Encoding.UTF8.GetBytes("{\"state\":1}\n");
+                        int _bytes_send = workSocket.Send(_send_bytes);
+                        break;
                     }
                     Sassion.sassions[aktual_sassion].log("Read " + bytes_read + " bytes from client: " + receive_content);
                     Sassion.sassions[aktual_sassion].write("Read " + bytes_read + " bytes from client");
@@ -186,6 +198,57 @@ public class Server
             }
 
         } while (workSocket.Connected && Sassion.sassions[aktual_sassion].live);
+
+        if(aktual_sassion != null)
+        {
+            Sassion.sassions[aktual_sassion].live = false;
+            write("A " + aktual_sassion + " véget ért.");
+        }
+    }
+
+    void saveLog()
+    {
+        int year = DateTime.Now.Year;
+        int month = DateTime.Now.Month;
+        int day = DateTime.Now.Day;
+        int hour = DateTime.Now.Hour;
+
+        if(!Directory.Exists("logs"))
+        {
+            Directory.CreateDirectory("logs");
+        }
+
+        if (!Directory.Exists("logs/" + year))
+        {
+            Directory.CreateDirectory("logs/" + year);
+        }
+
+        if (!Directory.Exists("logs/" + year + "/" + month))
+        {
+            Directory.CreateDirectory("logs/" + year + "/" + month);
+        }
+
+        if (!Directory.Exists("logs/" + year + "/" + month + "/" + day))
+        {
+            Directory.CreateDirectory("logs/" + year + "/" + month + "/" + day);
+        }
+
+        if (!Directory.Exists("logs/" + year + "/" + month + "/" + day + "/" + hour))
+        {
+            Directory.CreateDirectory("logs/" + year + "/" + month + "/" + day + "/" + hour);
+        }
+
+        foreach(var sassion in Sassion.sassions)
+        {
+            string path = "logs/" + year + "/" + month + "/" + day + "/" + hour + "/Sassion-" + sassion.Key + ".txt";
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.Write(sassion.Value.getLog());
+                write("Sassion" + sassion.Key + ":  Kimentve a '" + path + "' helyre!");
+            }
+        }
+
+        write("Done");
     }
 }
 
