@@ -209,12 +209,18 @@ public class JobToMaintenance extends javax.swing.JDialog {
         else{
             int karbantartoid = idk.get(username);
             int ido = Integer.parseInt( idopontComboBox.getSelectedItem().toString() );
-            if(client.addJobToMaintenance(karbantartoid, karbid, ido)) {
-                JOptionPane.showMessageDialog(null, "Sikeres kiosztás!");
-                success=true;
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(null, "Nem sikerült a feladat kiosztása!");
+            switch (client.addJobToMaintenance(karbantartoid, karbid, ido)) {
+                case 0:
+                    JOptionPane.showMessageDialog(null, "Sikeres kiosztás!");
+                    success=true;
+                    dispose();
+                    break;
+                case 2:
+                    JOptionPane.showMessageDialog(null, "Vagy ütközés történt, vagy a karbantartó már nem tud több munkát fogadni!");
+                    break;
+                default:
+                    JOptionPane.showMessageDialog(null, "Hiba történt a feladat kiosztása során!");
+                    break;
             }
         }
     }//GEN-LAST:event_kiosztButtonActionPerformed

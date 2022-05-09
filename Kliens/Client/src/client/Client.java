@@ -161,7 +161,7 @@ public class Client {
         return state;
     }
     
-    public boolean addJobToMaintenance(int karbantartoid, int karbantartasid, int ido) {
+    public int addJobToMaintenance(int karbantartoid, int karbantartasid, int ido) {
         JSONObject obj = new JSONObject();
         obj.put("hash", hash);
         obj.put("code", 15);
@@ -170,8 +170,8 @@ public class Client {
         obj.put("ido", ido);
         
         obj = (JSONObject)sendAndRecieveJSON(obj);
-        boolean state = (Long) (obj.get("state")) == 0;
-        return state;
+        long state = (long) (obj.get("state")) ;
+        return (int)state;
     }
     
     public boolean addItem(String id, String name, int category, String location, String description) {
