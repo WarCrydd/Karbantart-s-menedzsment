@@ -10,7 +10,7 @@ namespace Json_Classes
         public string? name { get; set; }
         public string? school { get; set; }
         public string? role { get; set; }
-        public Int64? parent { get; set; }
+        public string? parent { get; set; }
         public Int64? karbantartasid { get; set; }
         public Int64? normaido { get; set; }
         public Int64? ido { get; set; }

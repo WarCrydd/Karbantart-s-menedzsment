@@ -61,20 +61,29 @@ public class Server
             }
             else if(datas[0] == "close")
             {
+                if(datas.Length <= 1)
+                {
+                    write("A \"close\" parancs önmagában nem értelmezett");
+                }
                 if (datas[1] == "server")
                 {
                     live = false;
                     main_thread.Abort();
-                    foreach(var th in sassion_threads)
+                    foreach (var th in sassion_threads)
                     {
                         th.Join();
                     }
                     write("Done!");
                 }
-                else if(datas[1] == "sassion")
+                else if (datas[1] == "sassion")
                 {
-                    Sassion.sassions[datas[3]].live = false;
-                    write("Done!");
+                    if (!Sassion.sassions.ContainsKey(datas[2]))
+                    {
+                        write("A rendszer nem tartalmazza a megadott sassion-t!");
+                        continue;
+                    }
+                    Sassion.sassions[datas[2]].live = false;
+                    write("Done!, Az utolsó kommmunikáció befejezése után a sassion leáll.");
                 }
             }
             else if(datas[0] == "list")
@@ -151,7 +160,9 @@ public class Server
                     {
                         break;
                     }
-                    return;
+
+                    aktual_sassion = "Nem azonosított";
+                    break;
                 }
 
                 if (bytes_read > 0)

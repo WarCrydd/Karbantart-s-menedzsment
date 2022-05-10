@@ -146,13 +146,12 @@ namespace Server_2.Sassions
                 }
                 else
                 {
-                    
                     return null;
                 }
             }
             connection.Close();
 
-            foreach (var item in sassions)
+            foreach (var item in sassions) //már bejelentkezett felhasználók szűrése
             {
                 if (item.Value.id == f_id && item.Value.live)
                 {
@@ -455,12 +454,15 @@ namespace Server_2.Sassions
             }
             dbClose();
 
-            for(int i = 0; i< jsr.karbantartas.Count; i++)
+            if(!blank)
             {
-                if(jsr.karbantartas[i].date < DateTime.Now.AddDays(-1))
+                for (int i = 0; i < jsr.karbantartas.Count; i++)
                 {
-                    jsr.karbantartas.Remove(jsr.karbantartas[i]);
-                    i--;
+                    if (jsr.karbantartas[i].date < DateTime.Now.AddDays(-1))
+                    {
+                        jsr.karbantartas.Remove(jsr.karbantartas[i]);
+                        i--;
+                    }
                 }
             }
 
@@ -635,7 +637,6 @@ namespace Server_2.Sassions
             {
                 state = 0
             };
-            dbOpen();
             try
             {
                 var command = connection.CreateCommand();
@@ -644,11 +645,12 @@ namespace Server_2.Sassions
                 INSERT INTO Kategoria (Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periodus, Instrukciok)
                 VALUES( '"
                         + js.name + "', "
-                        + js.parent + ", "
+                        + getKategoriaIdByName(js.parent) + ", "
                         + js.normaido + ", "
                         + js.karbperiod + ", '"
                         + js.leiras + "')";
                 //write(command.CommandText);
+                dbOpen();
                 if (command.ExecuteNonQuery() == -1)
                 {
                     return new JsonCommunicationResponse
@@ -839,7 +841,7 @@ namespace Server_2.Sassions
                 VALUES( "
                     + js.eszkozid + ", '"
                     + "" + "', '"
-                    + "Kritikus" + "', '"
+                    + sulyossag + "', '"
                     + js.date + "', '"
                     + js.leiras + "'"
                     + ")";
@@ -1432,17 +1434,30 @@ namespace Server_2.Sassions
 
             foreach(var karbantartas in karbantartasok.karbantartas)
             {
+                
                 if (karbantartas.sulyossag == "Idoszakos")
                 {
                     if (_dateTime > karbantartas.date)
                     {
                         DateTime? _date = karbantartas.date.Value.AddMonths((int)getKategoriaPeriodusIdByID(getKategoriaIdByEszkozID((long)karbantartas.eszkoz_id)));
+                        bool a = false;
+                        foreach(var _k in karbantartasok.karbantartas)
+                        {
+                            if(_k.date == _date && _k.eszkoz_id == karbantartas.eszkoz_id)
+                            {
+                                a = true;
+                            }
+                        }
+                        if(a)
+                        {
+                            continue;
+                        }
                         ujKarbantartas(new JsonCommunication 
                         {
                             eszkozid = karbantartas.eszkoz_id,
                             date = _date,
                             leiras = karbantartas.leiras
-                        });
+                        },"Idoszakos");
                     }
                 }
             }
