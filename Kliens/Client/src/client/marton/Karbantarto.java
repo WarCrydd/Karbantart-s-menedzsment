@@ -26,6 +26,7 @@ public class Karbantarto extends javax.swing.JFrame {
     
     public Karbantarto(Client c) {
         initComponents();
+        //nev.setText(client.getName());
         this.setLocationRelativeTo(null);
         this.client = c;
         JSONArray obj = client.getTODoList(-1);

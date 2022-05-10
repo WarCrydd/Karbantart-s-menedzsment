@@ -28,6 +28,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     private String [] kategoriak;
     private JSONArray tools;
     private JSONArray array;
+    private DefaultTableModel dtm;
     
     public ResponsibleForAssets(Client c) {
         initComponents();        
@@ -40,11 +41,11 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
             JSONObject obj = (JSONObject)array.get(i);
             kategoriak[i] = obj.get("name").toString();
         }
-        CATEGORY_COMBOBOX.setModel(new DefaultComboBoxModel(kategoriak.clone()));
-        SUBCATEGORY_COMBOBOX.setModel(new DefaultComboBoxModel(kategoriak.clone()));
-        SUBCATEGORY_COMBOBOX.setEnabled(false);
+        //CATEGORY_COMBOBOX.setModel(new DefaultComboBoxModel(kategoriak.clone()));
+        //SUBCATEGORY_COMBOBOX.setModel(new DefaultComboBoxModel(kategoriak.clone()));
+        //SUBCATEGORY_COMBOBOX.setEnabled(false);
         
-//        tools = client.getTools();
+        tools = client.getTools();
 //        int size1 = tools.size();
 //        int size2 = ((JSONObject)tools.get(0)).size();
 //        Object [][] data = new Object[size1][size2];
@@ -55,6 +56,16 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
 //            data[i][0] = obj.get("elhelyezkedes");
 //        }
 //        TOOLS_TABLE.setModel(new DefaultTableModel(data, new String []{"Azonosító", "Megnevezés", "Elhelyezkedés"}));
+        dtm=(DefaultTableModel) TOOLS_TABLE.getModel();
+        for (int i = 0; i < tools.size(); i++) {
+            JSONObject obj = (JSONObject)tools.get(i);
+            System.out.println(obj.get("id").toString());
+            int sorsz = Integer.parseInt(obj.get("id").toString());
+            String nev = obj.get("name").toString();
+            String hely = obj.get("elhelyezkedes").toString();
+            
+            dtm.addRow(new Object[]{sorsz,nev,hely,});
+        }
         
         CATEGORY_COMBOBOX2.setModel(new DefaultComboBoxModel<>(kategoriak.clone()));
         
@@ -84,11 +95,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
         NAME_LABEL = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         TOOLS_TABLE = new javax.swing.JTable();
-        CATEGORY_COMBOBOX = new javax.swing.JComboBox<>();
-        CATEGORY_LABEL = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
-        SUBCATEGORY_LABEL = new javax.swing.JLabel();
-        SUBCATEGORY_COMBOBOX = new javax.swing.JComboBox<>();
         jLabel5 = new javax.swing.JLabel();
         azonositoField = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
@@ -115,26 +122,38 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
 
         TOOLS_TABLE.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
+                "Azonosító", "Név", "Elhelyezkedés"
             }
-        ));
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        TOOLS_TABLE.setColumnSelectionAllowed(false);
+        TOOLS_TABLE.getTableHeader().setReorderingAllowed(false);
         jScrollPane1.setViewportView(TOOLS_TABLE);
-
-        CATEGORY_COMBOBOX.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        CATEGORY_LABEL.setText("Kategória:");
+        TOOLS_TABLE.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (TOOLS_TABLE.getColumnModel().getColumnCount() > 0) {
+            TOOLS_TABLE.getColumnModel().getColumn(0).setResizable(false);
+            TOOLS_TABLE.getColumnModel().getColumn(1).setResizable(false);
+            TOOLS_TABLE.getColumnModel().getColumn(2).setResizable(false);
+        }
 
         jButton1.setText("Lekérdezés");
-
-        SUBCATEGORY_LABEL.setText("Alkategória:");
-
-        SUBCATEGORY_COMBOBOX.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         jLabel5.setText("Azonosító:");
 
@@ -188,14 +207,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(CATEGORY_LABEL)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(CATEGORY_COMBOBOX, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(SUBCATEGORY_LABEL)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(SUBCATEGORY_COMBOBOX, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGap(0, 0, Short.MAX_VALUE)
                         .addComponent(jButton1))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -243,12 +255,7 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
                     .addComponent(NAME_LABEL)
                     .addComponent(LOGOUT_BUTTON))
                 .addGap(22, 22, 22)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(CATEGORY_COMBOBOX, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(CATEGORY_LABEL)
-                    .addComponent(jButton1)
-                    .addComponent(SUBCATEGORY_LABEL)
-                    .addComponent(SUBCATEGORY_COMBOBOX, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(jButton1)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -350,15 +357,11 @@ public class ResponsibleForAssets extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> CATEGORY_COMBOBOX;
     private javax.swing.JComboBox<String> CATEGORY_COMBOBOX2;
-    private javax.swing.JLabel CATEGORY_LABEL;
     private javax.swing.JButton EszkozFelvitelButton;
     private javax.swing.JButton LOGOUT_BUTTON;
     private javax.swing.JLabel NAME_LABEL;
     private javax.swing.JButton NEW_CATEGORY_BUTTON;
-    private javax.swing.JComboBox<String> SUBCATEGORY_COMBOBOX;
-    private javax.swing.JLabel SUBCATEGORY_LABEL;
     private javax.swing.JLabel TITLE_LABEL;
     private javax.swing.JTable TOOLS_TABLE;
     private javax.swing.JTextField azonositoField;
