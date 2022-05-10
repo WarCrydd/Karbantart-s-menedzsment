@@ -11,20 +11,19 @@ namespace Server_2.Sassions
     {
         #region variables
         public static Dictionary<string, Sassion> sassions = new Dictionary<string, Sassion>();
-        public const int BufferSize = 1024;
-        public const int session_timout = 600000;
+        public const int BufferSize = 10000;
+        public const int session_timout = 300000000;
         public bool live = false;
 
         SqliteConnection connection = new SqliteConnection("Data Source=karbantartas-menedzsment.db");
-        static SqliteConnection sconnection = new SqliteConnection("Data Source=karbantartas-menedzsment.db");
-        bool connection_opened = false;
-
+        
         protected static JsonSerializerOptions options = new JsonSerializerOptions
         {
             IgnoreNullValues = true
         };
 
         public string name = "";
+        protected Int64 id = 0;
         protected bool bejelentkezve = false;
         string mhash = "Nincs még érték!! Ezt nem lenne szabad látni!!";
         StringBuilder logsb = new StringBuilder();
@@ -66,7 +65,7 @@ namespace Server_2.Sassions
         public void log(string ms)
         {
             logsb.AppendLine(ms);
-#if MY_DEBUG
+#if MYDEBUG
             write(ms);
 #endif
         }
@@ -125,12 +124,13 @@ namespace Server_2.Sassions
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                SELECT Nev, Szerep
+                SELECT Nev, Szerep ,ID
                 FROM Felhasznalo
                 WHERE FelhasznaloNev =  '" + js.username + "' " +
                 "AND Jelszo ='" + js.password + "'";
 
             connection.Open();
+            Int64 f_id = 0;
             using (var reader = command.ExecuteReader())
             {
                 if (reader.Read())
@@ -142,15 +142,22 @@ namespace Server_2.Sassions
                         name = (string)record[0],
                         role = (string)record[1]
                     };
+                    f_id = (Int64)record[2];
                 }
                 else
                 {
-                    
                     return null;
                 }
             }
             connection.Close();
 
+            foreach (var item in sassions) //már bejelentkezett felhasználók szűrése
+            {
+                if (item.Value.id == f_id && item.Value.live)
+                {
+                    return null;
+                }
+            }
 
             string new_hash = RandomHash();
             switch (jsr.role)
@@ -171,7 +178,7 @@ namespace Server_2.Sassions
                     sassions.Add(new_hash, new SassionForKarbantarto(new_hash));
                     break;
 
-                case "hibabejento":
+                case "hibabejelento":
                     sassions.Add(new_hash, new SassionForHibabejelento(new_hash));
                     break;
 
@@ -184,12 +191,13 @@ namespace Server_2.Sassions
 
         protected JsonCommunicationResponse belepes(JsonCommunication js)
         {
+            live = true;
             JsonCommunicationResponse jsr;
             dbOpen();
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                SELECT Nev, Szerep
+                SELECT Nev, Szerep, ID
                 FROM Felhasznalo
                 WHERE FelhasznaloNev =  '" + js.username + "' " +
                 "AND Jelszo ='" + js.password + "'";
@@ -206,6 +214,7 @@ namespace Server_2.Sassions
                         name = (string)record[0],
                         role = (string)record[1]
                     };
+                    id = (Int64)record[2]; 
                     dbClose();
                     name = jsr.name;
                     return jsr;
@@ -217,7 +226,7 @@ namespace Server_2.Sassions
             {
                 state = 1
             };
-
+            
             return jsr;
         }
 
@@ -231,7 +240,7 @@ namespace Server_2.Sassions
             return jsr;
         }
 
-#region List_comunication
+        #region List_comunication
         protected JsonCommunicationResponse listKategorioa(JsonCommunication js)
         {
             dbOpen();
@@ -327,13 +336,6 @@ namespace Server_2.Sassions
                 {
                     IDataRecord records = (IDataRecord)reader;
 
-                    //Int64 id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]);
-                    //string name = records[1] == DBNull.Value ? "" : (string)records[1];
-                    //string username = records[2] == DBNull.Value ? "" : (string)records[2];
-                    //string pelda = records[3] == DBNull.Value ? "" : (string)(records[4]);
-                    //Int64 munkaorakszama = records[3] == DBNull.Value ? -1 : Convert.ToInt64(records[4]);
-                    //string role = records[4] == DBNull.Value ? "" : (string)records[5];
-
                     jsr.felhasznalo.Add(new JsonFelhasznalo
                     {
                         id = records[0] == DBNull.Value ? -1 : Convert.ToInt64(records[0]),
@@ -347,16 +349,78 @@ namespace Server_2.Sassions
             }
             dbClose();
 
+            if(js.eszkozid != null && js.eszkozid != -1)
+            {
+                for(int i = 0;i < jsr.felhasznalo.Count;i++)
+                {
+                    bool szerelheti = false;
+                    List<Int64> seged = getKepesitesIdByKategoriaID(getKategoriaIdByEszkozID((long)js.eszkozid));
+                    foreach(var j in seged)
+                    {
+                        foreach(var k in getKepesitesIdByFelhasznaloID((long)jsr.felhasznalo[i].id))
+                        {
+                            if(j == k)
+                            {
+                                szerelheti = true;
+                            }
+                        }
+                    }
+
+                    if (!szerelheti)
+                    {
+                        jsr.felhasznalo.Remove(jsr.felhasznalo[i]);
+                        i--;
+                    }
+                }
+            }
+
+            if(js.karbantartasid != null && js.karbantartasid >= 0)
+            {
+                foreach(var felhasznalo in jsr.felhasznalo)
+                {
+                    List<Int64> szorak = new List<long> { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24 };
+                    DateTime date = getKarbantartasByID((long)js.karbantartasid).date.Value;
+                    JsonCommunicationResponse karbantartasok = listKarbantartas(new JsonCommunication { });
+                    foreach(var j in karbantartasok.karbantartas)
+                    {
+                        if(date.AddDays(-1) <= j.date.Value && j.date.Value <= date.AddDays(1) && j.karbantartoid == felhasznalo.id)
+                        {
+                            int normaido = (int)getNormaidoByKategoriaID(getKategoriaIdByEszkozID((long)j.eszkoz_id));
+                            for (int i = 0; i < normaido; i++)
+                            {
+                                szorak.Remove(j.date.Value.Hour + i);
+                            }
+                        }
+                    }
+                    felhasznalo.szabadorak = szorak;
+                }
+            }
+            else if(js.karbantartasid == -2)
+            {
+                List<JsonFelhasznalo> felhasznalok = new List<JsonFelhasznalo>(jsr.felhasznalo);
+                foreach(var i in felhasznalok)
+                {
+                    if(i.role != "karbantarto")
+                    {
+                        jsr.felhasznalo.Remove(i);
+                    }
+                }
+            }
+
             return jsr;
         }
 
-        protected JsonCommunicationResponse listKarbantartas(JsonCommunication js) 
+        protected JsonCommunicationResponse listKarbantartas(JsonCommunication js, bool blank = false)
         {
+            if(!blank)
+            {
+                checkKarbantartas();
+            }
             dbOpen();
             var command = connection.CreateCommand();
             command.CommandText =
                 @"
-                SELECT e.Megnevezes, k.Sulyossag, e.Elhelyezkedes, e.ID, k.ID
+                SELECT e.Megnevezes, k.Sulyossag, e.Elhelyezkedes, e.ID, k.ID, k.Allapot, k.KarbantartoID, k.Date, k.Leiras
                 FROM Eszkozok e
                 INNER JOIN Karbantartas k
                 ON k.EszkozID = e.ID
@@ -379,12 +443,40 @@ namespace Server_2.Sassions
                         sulyossag = records[1] == DBNull.Value ? "" : Convert.ToString(records[1]),
                         helyszin = records[2] == DBNull.Value ? "" : Convert.ToString(records[2]),
                         eszkoz_id = records[3] == DBNull.Value ? -1 : Convert.ToInt64(records[3]),
-                        id = records[4] == DBNull.Value ? -1 : Convert.ToInt64(records[4])
+                        id = records[4] == DBNull.Value ? -1 : Convert.ToInt64(records[4]),
+                        allapot = records[5] == DBNull.Value ? "" : Convert.ToString(records[5]),
+                        karbantartoid = records[6] == DBNull.Value ? -1 : Convert.ToInt64(records[6]),
+                        date = records[7] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(records[7]),
+                        leiras = records[8] == DBNull.Value ? "" : Convert.ToString(records[8])
                     });
 
                 }
             }
             dbClose();
+
+            if(!blank)
+            {
+                for (int i = 0; i < jsr.karbantartas.Count; i++)
+                {
+                    if (jsr.karbantartas[i].date < DateTime.Now.AddDays(-1))
+                    {
+                        jsr.karbantartas.Remove(jsr.karbantartas[i]);
+                        i--;
+                    }
+                }
+            }
+
+            if(js.karbantartoid != null && js.karbantartoid != -1)
+            {
+                List<JsonKarbantartas> karbantartasok = new List<JsonKarbantartas>(jsr.karbantartas);
+                foreach(var i in karbantartasok)
+                {
+                    if(i.karbantartoid != js.karbantartoid)
+                    {
+                        jsr.karbantartas.Remove(i);
+                    }
+                }
+            }
 
             return jsr;
         }
@@ -535,9 +627,9 @@ namespace Server_2.Sassions
 
             return jsr;
         }
-#endregion
+        #endregion
 
-#region New_communication
+        #region New_communication
         protected JsonCommunicationResponse ujKat(JsonCommunication js)
         {
 
@@ -545,7 +637,6 @@ namespace Server_2.Sassions
             {
                 state = 0
             };
-            dbOpen();
             try
             {
                 var command = connection.CreateCommand();
@@ -554,11 +645,12 @@ namespace Server_2.Sassions
                 INSERT INTO Kategoria (Megnevezes, SzuloKategoriaID, NormaIdo, Karb_periodus, Instrukciok)
                 VALUES( '"
                         + js.name + "', "
-                        + js.parent + ", "
+                        + getKategoriaIdByName(js.parent) + ", "
                         + js.normaido + ", "
                         + js.karbperiod + ", '"
                         + js.leiras + "')";
-                write(command.CommandText);
+                //write(command.CommandText);
+                dbOpen();
                 if (command.ExecuteNonQuery() == -1)
                 {
                     return new JsonCommunicationResponse
@@ -585,21 +677,39 @@ namespace Server_2.Sassions
             {
                 state = 0
             };
-
+            string role = "";
+            switch (js.role)
+            {
+                case "Hiba bejelentő":
+                    role = "hibabejelento";
+                    break;
+                case "Karbantartó":
+                    role = "karbantarto";
+                    break;
+                case "Operátor":
+                    role = "operator";
+                    break;
+                case "Eszközfelelős":
+                    role = "eszkozfelelos";
+                    break;
+                default:
+                    role = js.role;
+                    break;
+            }
             try
             {
                 var command = connection.CreateCommand();
                 command.CommandText =
                     @"
-                INSERT INTO Felhasznalo (Nev, FelhasznaloNev, Jelszo, KepesitesID, Munkaorak_szama, Szerep)
+                INSERT INTO Felhasznalo (Nev, FelhasznaloNev, Jelszo, Munkaorak_szama, Szerep)
                 VALUES( '"
                         + js.name + "', '"
                         + js.username + "', '"
                         + js.password + "', "
-                        + "1, 2" + ", '"
-                        + js.role + "')";
+                        + "8" + ", '"
+                        + role + "')";
 
-                write(command.CommandText);
+                //write(command.CommandText);
                 dbOpen();
                 if (command.ExecuteNonQuery() == -1)
                 {
@@ -638,7 +748,7 @@ namespace Server_2.Sassions
                     + js.leiras + "', '"
                     + js.elhelyezkedes + "' "
                     + ")";
-            write(command.CommandText);
+            //write(command.CommandText);
             if (command.ExecuteNonQuery() == -1)
             {
                 return new JsonCommunicationResponse
@@ -672,7 +782,7 @@ namespace Server_2.Sassions
                 VALUES( '"
                     + js.name + "')";
             dbOpen();
-            write(command.CommandText);
+            //write(command.CommandText);
             if (command.ExecuteNonQuery() == -1)
             {
                 return new JsonCommunicationResponse
@@ -735,7 +845,7 @@ namespace Server_2.Sassions
                     + js.date + "', '"
                     + js.leiras + "'"
                     + ")";
-            write(command.CommandText);
+            //write(command.CommandText);
             if (command.ExecuteNonQuery() == -1)
             {
                 dbClose();
@@ -745,6 +855,25 @@ namespace Server_2.Sassions
                 };
             }
             dbClose();
+
+            dbOpen();
+            command.CommandText = "SELECT MAX(ID) FROM Kepesites";
+            var reader = command.ExecuteReader();
+            if (!reader.Read())
+            {
+                return new JsonCommunicationResponse
+                {
+                    state = 1
+                };
+            }
+            IDataRecord records = (IDataRecord)reader;
+            Int64 kar_id = (Int64)records[0];
+
+            reader.Close();
+            dbClose();
+
+            createKarbantartasLog(kar_id, this.id, "Created");
+
             return jsr;
         }
 
@@ -762,7 +891,7 @@ namespace Server_2.Sassions
                     + getFelhasznaloIdByName(js.username) + ", "
                     + getKepesitesIdByName(js.name)
                     + ")";
-            write(command.CommandText);
+            //write(command.CommandText);
             dbOpen();
             if (command.ExecuteNonQuery() == -1)
             {
@@ -775,10 +904,179 @@ namespace Server_2.Sassions
             dbClose();
             return jsr;
         }
-#endregion
+        #endregion
 
-#region Inner_Methods
-        Int64 getEszkozID(string name, Int64? kategoriaid, string leiras, string elhelyezkedes)
+        #region Update_communication
+
+        protected JsonCommunicationResponse karbantartoKarbantartashozRendeles(JsonCommunication js)
+        {
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0,
+            };
+
+            var command = connection.CreateCommand();
+            DateTime date = getKarbantartasByID((long)js.karbantartasid).date.Value;
+            command.CommandText =
+                @"
+                UPDATE Karbantartas
+                SET Allapot = 'Ütemezve', KarbantartoID = " + js.karbantartoid + ", Date = '" + date.AddHours(-1 * date.Hour).AddHours((double)js.ido) +
+                "' WHERE ID = " + js.karbantartasid;
+            
+            dbOpen();
+            try
+            {
+                using (var reader = command.ExecuteReader())
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                write("Nem jóóó" + ex.Message);
+                jsr = new JsonCommunicationResponse
+                {
+                    state = 1,
+                };
+            }
+            dbClose();
+
+            createKarbantartasLog((long)js.karbantartasid, id, "Ütemezve");
+
+            return jsr;
+        }
+
+        protected JsonCommunicationResponse karbantartasElfogadasElutasitas(JsonCommunication js, bool accept)
+        {
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0,
+            };
+            if (getKarbantartasByID((long)js.id).allapot != "Ütemezve")
+            {
+                jsr.state = 1;
+                return jsr;
+            }
+            var command = connection.CreateCommand();
+            DateTime date = getKarbantartasByID((long)js.id).date.Value;
+            command.CommandText =
+                @"
+                UPDATE Karbantartas
+                SET Allapot = '" + (accept ? "Elfogadva" : "Elutasítva") +
+                "' WHERE KarbantartoID = " + js.karbantartoid + " AND ID = " + js.id;
+
+            dbOpen();
+            try
+            {
+                using (var reader = command.ExecuteReader())
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                write("Nem jóóó" + ex.Message);
+                jsr = new JsonCommunicationResponse
+                {
+                    state = 1,
+                };
+            }
+            dbClose();
+
+            createKarbantartasLog((long)js.id, id, (accept ? "Elfogadva" : "Elutasítva"));
+
+            return jsr;
+        }
+
+        protected JsonCommunicationResponse karbantartasElkezdese(JsonCommunication js)
+        {
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0,
+            };
+            if (getKarbantartasByID((long)js.id).allapot != "Elfogadva")
+            {
+                jsr.state = 1;
+                return jsr;
+            }
+            var command = connection.CreateCommand();
+            DateTime date = getKarbantartasByID((long)js.id).date.Value;
+            command.CommandText =
+                @"
+                UPDATE Karbantartas
+                SET Allapot = 'Megkezdve'
+                WHERE KarbantartoID = " + js.karbantartoid + " AND ID = " + js.id;
+
+            dbOpen();
+            try
+            {
+                using (var reader = command.ExecuteReader())
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                write("Nem jóóó" + ex.Message);
+                jsr = new JsonCommunicationResponse
+                {
+                    state = 1,
+                };
+            }
+            dbClose();
+            jsr.leiras = getKategoriaByID(getKategoriaIdByEszkozID((long)getKarbantartasByID((long)js.id).eszkoz_id)).leiras;
+
+            createKarbantartasLog((long)js.id, id, "Elkezdve");
+
+            return jsr;
+        }
+
+        protected JsonCommunicationResponse karbantartasBefejezese(JsonCommunication js)
+        {
+            JsonCommunicationResponse jsr = new JsonCommunicationResponse
+            {
+                state = 0,
+            };
+            if (getKarbantartasByID((long)js.id).allapot != "Megkezdve")
+            {
+                jsr.state = 1;
+                return jsr;
+            }
+            var command = connection.CreateCommand();
+            DateTime date = getKarbantartasByID((long)js.id).date.Value;
+            command.CommandText =
+                @"
+                UPDATE Karbantartas
+                SET Allapot = 'Befejezve'
+                WHERE KarbantartoID = " + js.karbantartoid + " AND ID = " + js.id;
+
+            dbOpen();
+            try
+            {
+                using (var reader = command.ExecuteReader())
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                write("Nem jóóó" + ex.Message);
+                jsr = new JsonCommunicationResponse
+                {
+                    state = 1,
+                };
+            }
+            dbClose();
+
+            createKarbantartasLog((long)js.id, id, "Befejezve");
+
+            return jsr;
+        }
+
+        #endregion
+
+        #region Inner_Methods
+        protected Int64 getEszkozID(string name, Int64? kategoriaid, string leiras, string elhelyezkedes)
         {
             Int64 result = -1;
             dbOpen();
@@ -802,7 +1100,7 @@ namespace Server_2.Sassions
             return result;
         }
 
-        Int64 getKepesitesIdByName(string data)
+        protected Int64 getKepesitesIdByName(string data)
         {
             Int64 result = -1;
             dbOpen();
@@ -826,7 +1124,7 @@ namespace Server_2.Sassions
             return result;
         }
 
-        string getKepesitesNameByID(Int64 data)
+        protected string getKepesitesNameByID(Int64 data)
         {
             string result = "";
             dbOpen();
@@ -850,7 +1148,7 @@ namespace Server_2.Sassions
             return result;
         }
 
-        Int64 getFelhasznaloIdByName(string data)
+        protected Int64 getFelhasznaloIdByName(string data)
         {
             Int64 result = -1;
             dbOpen();
@@ -874,7 +1172,7 @@ namespace Server_2.Sassions
             return result;
         }
 
-        Int64 getKategoriaIdByName(string data)
+        protected Int64 getKategoriaIdByName(string data)
         {
             Int64 result = -1;
             dbOpen();
@@ -898,7 +1196,7 @@ namespace Server_2.Sassions
             return result;
         }
 
-        Int64 getKategoriaIdByEszkozID(Int64 data)
+        protected Int64 getKategoriaIdByEszkozID(Int64 data)
         {
             Int64 result = -1;
             dbOpen();
@@ -922,7 +1220,7 @@ namespace Server_2.Sassions
             return result;
         }
 
-        Int64 getKategoriaPeriodusIdByID(Int64 data)
+        protected Int64 getKategoriaPeriodusIdByID(Int64 data)
         {
             Int64 result = -1;
             dbOpen();
@@ -946,6 +1244,181 @@ namespace Server_2.Sassions
             return result;
         }
 
+        protected JsonKarbantartas getKarbantartasByID(Int64 data)
+        {
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                SELECT e.Megnevezes, k.Sulyossag, e.Elhelyezkedes, e.ID, k.ID, k.Allapot, k.KarbantartoID, k.Date, k.Leiras
+                FROM Eszkozok e
+                INNER JOIN Karbantartas k
+                ON k.EszkozID = e.ID WHERE k.ID = " + data;
+
+            JsonKarbantartas jsonKarbantartas = new JsonKarbantartas();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord records = (IDataRecord)reader;
+
+                    jsonKarbantartas =  new JsonKarbantartas
+                    {
+                        name = records[0] == DBNull.Value ? "" : Convert.ToString(records[0]),
+                        sulyossag = records[1] == DBNull.Value ? "" : Convert.ToString(records[1]),
+                        helyszin = records[2] == DBNull.Value ? "" : Convert.ToString(records[2]),
+                        eszkoz_id = records[3] == DBNull.Value ? -1 : Convert.ToInt64(records[3]),
+                        id = records[4] == DBNull.Value ? -1 : Convert.ToInt64(records[4]),
+                        allapot = records[5] == DBNull.Value ? "" : Convert.ToString(records[5]),
+                        karbantartoid = records[6] == DBNull.Value ? -1 : Convert.ToInt64(records[6]),
+                        date = records[7] == DBNull.Value ? DateTime.MinValue : Convert.ToDateTime(records[7]),
+                        leiras = records[8] == DBNull.Value ? "" : Convert.ToString(records[8])
+                    };
+
+                }
+            }
+            dbClose();
+
+            return jsonKarbantartas;
+        }
+
+        protected JsonKategoria getKategoriaByID(Int64 data)
+        {
+            Int64 _normaido = getNormaidoByKategoriaID(data);
+
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                SELECT Megnevezes, SzuloKategoriaID, Karb_periodus, Instrukciok
+                FROM Kategoria 
+                WHERE ID = " + data;
+
+            JsonKategoria kategoria = new JsonKategoria();
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord records = (IDataRecord)reader;
+                    kategoria = new JsonKategoria
+                    {
+                        name = records[0] == DBNull.Value ? "" : Convert.ToString(records[0]),
+                        parent = records[1] == DBNull.Value ? -1 : Convert.ToInt64(records[1]),
+                        normaido = _normaido,
+                        karbperiod = records[2] == DBNull.Value ? -1 : Convert.ToInt64(records[2]),
+                        leiras = records[3] == DBNull.Value ? "" : Convert.ToString(records[3]),
+                    };
+                }
+            }
+            dbClose();
+
+            return kategoria;
+        }
+
+        protected List<Int64> getKepesitesIdByKategoriaID(Int64 data)
+        {
+            List<Int64> result = new List<Int64>();
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                Select KepesitesID
+                FROM Szerelheti
+                WHERE KategoriaID = " + data + "";
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord record = (IDataRecord)reader;
+                    result.Add((Int64)record[0]);
+                }
+            }
+
+            dbClose();
+            return result;
+        }
+
+        protected List<Int64> getKepesitesIdByFelhasznaloID(Int64 data)
+        {
+            List<Int64> result = new List<Int64>();
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                Select KepesitesID
+                FROM Kepzetsegek
+                WHERE KarbantartoID = " + data + "";
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord record = (IDataRecord)reader;
+                    result.Add((Int64)record[0]);
+                }
+            }
+
+            dbClose();
+            return result;
+        }
+
+        protected Int64 getNormaidoByKategoriaID(Int64 data)
+        {
+
+            Int64 result = 0;
+            dbOpen();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+                Select Normaido, SzuloKategoriaID
+                FROM Kategoria
+                WHERE ID = " + data + "";
+
+            using (var reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    IDataRecord record = (IDataRecord)reader;
+                    if (record[0] == DBNull.Value)
+                    {
+                        result = getNormaidoByKategoriaID((Int64)record[1]);
+                    }
+                    else
+                    {
+                        result = (Int64)record[0];
+                    }
+                }
+            }
+
+            dbClose();
+            return result;
+        }
+
+        bool createKarbantartasLog(Int64 k_id, Int64 f_id, string allapot, string indoklas = "")
+        {
+            dbOpen();
+            try
+            {
+                var command = connection.CreateCommand();
+                command.CommandText =
+                    @"
+                INSERT INTO MunkaLog (KarbantartasID, FelhasznaloID, Allapot, Indoklas, Date)
+                VALUES( " + k_id + ", " + f_id + ", '" + allapot + "', '" + indoklas + "', '" + DateTime.Now +"')";
+                //write(command.CommandText);
+                if (command.ExecuteNonQuery() == -1)
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            dbClose();
+            return true;
+        }
+
         void checkKarbantartas()
         {
             DateTime _dateTime = DateTime.Now;
@@ -957,21 +1430,34 @@ namespace Server_2.Sassions
                 }
             }
 
-            JsonCommunicationResponse karbantartasok = listKarbantartas(new JsonCommunication { });
+            JsonCommunicationResponse karbantartasok = listKarbantartas(new JsonCommunication { }, true);
 
             foreach(var karbantartas in karbantartasok.karbantartas)
             {
+                
                 if (karbantartas.sulyossag == "Idoszakos")
                 {
-                    if (_dateTime < karbantartas.date)
+                    if (_dateTime > karbantartas.date)
                     {
                         DateTime? _date = karbantartas.date.Value.AddMonths((int)getKategoriaPeriodusIdByID(getKategoriaIdByEszkozID((long)karbantartas.eszkoz_id)));
+                        bool a = false;
+                        foreach(var _k in karbantartasok.karbantartas)
+                        {
+                            if(_k.date == _date && _k.eszkoz_id == karbantartas.eszkoz_id)
+                            {
+                                a = true;
+                            }
+                        }
+                        if(a)
+                        {
+                            continue;
+                        }
                         ujKarbantartas(new JsonCommunication 
                         {
                             eszkozid = karbantartas.eszkoz_id,
                             date = _date,
                             leiras = karbantartas.leiras
-                        });
+                        },"Idoszakos");
                     }
                 }
             }
@@ -980,9 +1466,8 @@ namespace Server_2.Sassions
 
         void dbOpen()
         {
-            while (connection_opened) ;
+            //while (connection_opened) ;
 
-            connection_opened = true;
             connection.Open();
             Sassion.swrite("DB kinyit");
         }
@@ -990,7 +1475,6 @@ namespace Server_2.Sassions
         protected void dbClose()
         {
             connection.Close();
-            connection_opened = false;
             Sassion.swrite("DB zár");
         }
 #endregion

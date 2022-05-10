@@ -285,11 +285,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Projektek\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
+      "projectUniqueName": "C:\\Projektek\\client\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
       "projectName": "Server 2",
-      "projectPath": "C:\\Projektek\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
+      "projectPath": "C:\\Projektek\\client\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\Server 2.csproj",
       "packagesPath": "C:\\Users\\varga\\.nuget\\packages\\",
-      "outputPath": "C:\\Projektek\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\obj\\",
+      "outputPath": "C:\\Projektek\\client\\Karbantart-s-menedzsment\\Szerver\\Server 2\\Server 2\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,4 +1,4 @@
-#define MY_DEBUG
+//#define MYDEBUG
 
 using System;
 using System.Net;
@@ -48,6 +48,7 @@ public class Server
         main_thread.Start();
 
         while (live)
+
         {
             string input = Console.ReadLine();
 
@@ -60,20 +61,29 @@ public class Server
             }
             else if(datas[0] == "close")
             {
+                if(datas.Length <= 1)
+                {
+                    write("A \"close\" parancs önmagában nem értelmezett");
+                }
                 if (datas[1] == "server")
                 {
                     live = false;
                     main_thread.Abort();
-                    foreach(var th in sassion_threads)
+                    foreach (var th in sassion_threads)
                     {
                         th.Join();
                     }
                     write("Done!");
                 }
-                else if(datas[1] == "sassion")
+                else if (datas[1] == "sassion")
                 {
-                    Sassion.sassions[datas[3]].live = false;
-                    write("Done!");
+                    if (!Sassion.sassions.ContainsKey(datas[2]))
+                    {
+                        write("A rendszer nem tartalmazza a megadott sassion-t!");
+                        continue;
+                    }
+                    Sassion.sassions[datas[2]].live = false;
+                    write("Done!, Az utolsó kommmunikáció befejezése után a sassion leáll.");
                 }
             }
             else if(datas[0] == "list")
@@ -97,7 +107,7 @@ public class Server
             {
                 if (datas[1] == "log")
                 {
-                    write(Sassion.sassions[datas[3]].getLog());
+                    saveLog();
                 }
             }
         }
@@ -146,7 +156,13 @@ public class Server
                 }
                 else
                 {
-                    return;
+                    if(aktual_sassion != null)
+                    {
+                        break;
+                    }
+
+                    aktual_sassion = "Nem azonosított";
+                    break;
                 }
 
                 if (bytes_read > 0)
@@ -156,6 +172,13 @@ public class Server
                     if (aktual_sassion == null)
                     {
                         aktual_sassion = Sassion.createOrGetSassion(receive_content);
+                    }
+
+                    if(aktual_sassion == null)
+                    {
+                        byte[] _send_bytes = Encoding.UTF8.GetBytes("{\"state\":1}\n");
+                        int _bytes_send = workSocket.Send(_send_bytes);
+                        break;
                     }
                     Sassion.sassions[aktual_sassion].log("Read " + bytes_read + " bytes from client: " + receive_content);
                     Sassion.sassions[aktual_sassion].write("Read " + bytes_read + " bytes from client");
@@ -186,6 +209,57 @@ public class Server
             }
 
         } while (workSocket.Connected && Sassion.sassions[aktual_sassion].live);
+
+        if(aktual_sassion != null)
+        {
+            Sassion.sassions[aktual_sassion].live = false;
+            write("A " + aktual_sassion + " véget ért.");
+        }
+    }
+
+    void saveLog()
+    {
+        int year = DateTime.Now.Year;
+        int month = DateTime.Now.Month;
+        int day = DateTime.Now.Day;
+        int hour = DateTime.Now.Hour;
+
+        if(!Directory.Exists("logs"))
+        {
+            Directory.CreateDirectory("logs");
+        }
+
+        if (!Directory.Exists("logs/" + year))
+        {
+            Directory.CreateDirectory("logs/" + year);
+        }
+
+        if (!Directory.Exists("logs/" + year + "/" + month))
+        {
+            Directory.CreateDirectory("logs/" + year + "/" + month);
+        }
+
+        if (!Directory.Exists("logs/" + year + "/" + month + "/" + day))
+        {
+            Directory.CreateDirectory("logs/" + year + "/" + month + "/" + day);
+        }
+
+        if (!Directory.Exists("logs/" + year + "/" + month + "/" + day + "/" + hour))
+        {
+            Directory.CreateDirectory("logs/" + year + "/" + month + "/" + day + "/" + hour);
+        }
+
+        foreach(var sassion in Sassion.sassions)
+        {
+            string path = "logs/" + year + "/" + month + "/" + day + "/" + hour + "/Sassion-" + sassion.Key + ".txt";
+            using (StreamWriter sw = File.CreateText(path))
+            {
+                sw.Write(sassion.Value.getLog());
+                write("Sassion" + sassion.Key + ":  Kimentve a '" + path + "' helyre!");
+            }
+        }
+
+        write("Done");
     }
 }
 
