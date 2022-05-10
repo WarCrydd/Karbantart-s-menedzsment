@@ -168,11 +168,11 @@ public class VegzettsegKezelo extends javax.swing.JDialog {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         String vegzettseg=beVegzettseg.getText().trim();
-        boolean state = client.assignQualification(vegzettseg);
+        boolean state = client.assignQualification(vegzettseg, jList2.getModel());
         if (state) {
-            System.out.println("Hiba történt az adatok mentése során.");
-        } else {
             System.out.println("Az adatok bekerültek az adatbázisba.");
+        } else {
+            System.out.println("Hiba történt az adatok mentése során.");
         }
     }//GEN-LAST:event_jButton3ActionPerformed
 

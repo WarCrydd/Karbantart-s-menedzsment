@@ -13,7 +13,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -21,6 +20,7 @@ import javax.swing.ListModel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
 
 /**
  *
@@ -161,6 +161,19 @@ public class Client {
         return state;
     }
     
+    public int addJobToMaintenance(int karbantartoid, int karbantartasid, int ido) {
+        JSONObject obj = new JSONObject();
+        obj.put("hash", hash);
+        obj.put("code", 15);
+        obj.put("karbantartoid", karbantartoid);
+        obj.put("karbantartasid", karbantartasid);
+        obj.put("ido", ido);
+        
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        long state = (long) (obj.get("state")) ;
+        return (int)state;
+    }
+    
     public boolean addItem(String id, String name, int category, String location, String description) {
         JSONObject obj = new JSONObject();
         obj.put("code", 6);
@@ -176,7 +189,7 @@ public class Client {
         return state;
     }
     
-    public boolean addCategory(String name, String category, String normaido, String period, String instructions) {
+    public boolean addCategory(String name, String category, Integer normaido, String period, String instructions) {
         JSONObject obj = new JSONObject();
         obj.put("code", 3);
         obj.put("hash", hash);
@@ -205,11 +218,13 @@ public class Client {
         return ret;
     }
     
-    public JSONArray getUsers(){
+    public JSONArray getUsers(int eszkozid, int karbantartasid){
         JSONObject obj = new JSONObject();
         JSONArray ret = null;
         obj.put("hash", hash);
         obj.put("code", 9);
+        obj.put("eszkozid", eszkozid);
+        obj.put("karbantartasid", karbantartasid);
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
         if (state) {
@@ -231,17 +246,16 @@ public class Client {
         return ret;
     }
     
-    public boolean assignQualification(String qualification){
+    public boolean assignQualification(String qualification, ListModel<String> jList2){
         //TYŰ, ezt azért lehet, hogy újra kéne gondolni.
         String JSONtext;
-        JSONObject JSONreply;
         JSONObject obj = new JSONObject();
         obj.put("hash", hash);
         obj.put("code", 7);
         obj.put("name", qualification);
         StringBuilder str = new StringBuilder();
         str.append("[");
-        ListModel<String> model = null; //jList2.getModel(); volt ott
+        ListModel<String> model = jList2;
         for(int i=0;i<model.getSize();i++){
             if(i!=model.getSize()-1)
             {
@@ -261,21 +275,29 @@ public class Client {
         str.append("]");
         
         JSONtext = "{\"kategoriaaz\":" + str.toString() + ",\"code\":7,\"hash\":\"" +hash + "\",\"name\":\"" +qualification +"\"}";
-        System.out.println(JSONtext);
-        
-        JSONreply = (JSONObject)sendAndRecieveJSON(new JSONObject()); //JSONtext volt a paramétere.
-        return true;
+        JSONParser parser = new JSONParser();
+        try{
+            obj = (JSONObject) parser.parse(JSONtext);
+        }catch(Exception ex){
+            ex.printStackTrace();
+        }
+        obj = (JSONObject)sendAndRecieveJSON(obj);
+        boolean state = (Long) (obj.get("state")) == 0;
+        return state;
     }
 
-    public JSONArray getTODoList(){
+    public JSONArray getTODoList(int karbantartoid){
         JSONObject obj = new JSONObject();
         JSONArray ret = null;
         obj.put("code", 10);
         obj.put("hash", hash);
+        obj.put("karbantartoid", karbantartoid);
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
         if (state) {
             ret = (JSONArray)obj.get("karbantartas");                  
+        }else{
+            return null;
         }
         return ret;
     }
@@ -302,7 +324,8 @@ public class Client {
         return Integer.parseInt(obj.get("state").toString());
     }
     
-    public JSONObject startRepair(int karbantartasId){
+    public String startRepair(int karbantartasId){
+        String leiras = "";
         JSONObject obj = new JSONObject();
         obj.put("id", karbantartasId);
         obj.put("hash", hash);
@@ -310,9 +333,11 @@ public class Client {
         obj = (JSONObject)sendAndRecieveJSON(obj);
         boolean state = (Long) (obj.get("state")) == 0;
         if (state) {
-            obj = (JSONObject)obj.get("leiras");                  
+            leiras = obj.get("leiras").toString();                  
+        }else{
+            return null;
         }
-        return obj;
+        return leiras;
     }
     
     public int finishRepair(int karbantartasId){

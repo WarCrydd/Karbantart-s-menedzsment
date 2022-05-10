@@ -154,7 +154,7 @@ public class newCategory extends javax.swing.JDialog {
                 period=KARBPER_FIELD.getText(), instructions=INSTRUKCIOK_AREA.getText().trim();
         if(name.isEmpty() || category.isEmpty() || normaido.isEmpty() || period.isEmpty() || instructions.isEmpty()){
             JOptionPane.showMessageDialog(this, "Minden mező kitöltése kötelező", "Hiba", JOptionPane.WARNING_MESSAGE);
-        }else if (client.addCategory(name, category, normaido, period, instructions)){
+        }else if (client.addCategory(name, category, Integer.parseInt(normaido), period, instructions)){
             //majd táblázat frissítése
             MEGNEVEZES_FIELD.setText("");
             NORMAIDO_FIELD.setText("");
